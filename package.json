@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "format": "eslint . --fix",
     "preview": "vite preview",
-    "release": "tsc --noEmit && vite build --outDir release --emptyOutDir"
+    "release": "tsc --noEmit && vite build --outDir docs --emptyOutDir"
   },
   "dependencies": {
     "@langchain/langgraph": "0.4.9",
