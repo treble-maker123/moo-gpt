@@ -1,7 +1,7 @@
 {
   "name": "moo-gpt",
-  "private": true,
-  "version": "0.1.0",
+  "private": false,
+  "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "tsc --noEmit && vite build --outDir release --emptyOutDir"
   },
   "dependencies": {
     "@langchain/langgraph": "0.4.9",
