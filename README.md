@@ -11,14 +11,14 @@ No more grinding. No more button mashing. Just you, your words, and a cow that l
 
 > "Ship your crops, not your sanity."
 
----
 
 ## How It Works
 
 1. Launch the game at https://treble-maker123.github.io/moo-gpt/,
-2. Follow the instruction, have fun!
+2. Follow the instructions and have fun!
 
----
+
+ <img src="assets/v0.0.1.png" height="500" />
 
 ## Contributing
 
