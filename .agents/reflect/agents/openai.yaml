@@ -1,7 +1,7 @@
 interface:
   display_name: "Reflect"
   short_description: "Summarize sessions and doc updates"
-  default_prompt: "Use $reflect to summarize the working session and propose documentation updates future agents should know about."
+  default_prompt: "Use $reflect after a meaningful chunk of work to summarize the working session and propose documentation updates future agents should know about."
 
 policy:
   allow_implicit_invocation: true

@@ -5,7 +5,7 @@ description: Summarize a working session and propose documentation updates that 
 
 # Reflect
 
-Use this skill at the end of a task, after a meaningful milestone, or when the user asks for a session recap.
+Use this skill after the agent has completed a meaningful chunk of work, at the end of a task, or when the user asks for a session recap.
 
 ## Goal
 

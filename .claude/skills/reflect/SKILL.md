@@ -5,7 +5,7 @@ description: Claude-facing reflection skill that reuses the repository's agent r
 
 # Reflect
 
-Use this when Claude should summarize a working session and suggest documentation updates for future agents.
+Use this when Claude should summarize a working session after a meaningful chunk of work and suggest documentation updates for future agents.
 
 ## Source Of Truth
 

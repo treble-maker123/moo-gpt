@@ -11,7 +11,8 @@ These conventions keep agent work predictable and easy to hand off.
 
 ## File Placement
 
-- Put agent skills in `.agents/<skill-name>/SKILL.md`.
+- Put the shared agent skill in `.agents/<skill-name>/SKILL.md`.
+- If Claude needs the same skill, add a pointer file in `.claude/skills/<skill-name>/SKILL.md` that points back to the shared `.agents` skill.
 - Put shared guidance and project conventions in `.docs/`.
 - Keep repo entry-point guidance in `AGENTS.md`.
 - Keep local development setup notes in `DEVELOPMENT.md`.
@@ -22,6 +23,8 @@ These conventions keep agent work predictable and easy to hand off.
 - Keep Markdown short and scannable.
 - Use absolute file paths in agent-facing references when possible.
 - Prefer additive changes over broad rewrites.
+- Commit messages and PR descriptions must not include co-author information or agent attribution.
+- Repeat: do not add co-author trailers, agent signatures, or generated-by attribution in commit messages or PR descriptions.
 
 ## Verification
 
