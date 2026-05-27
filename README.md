@@ -1,6 +1,6 @@
-# 🐄 MooGPT - The AI Farming Game
+# 🐄  MooGPT - The AI Farming Game
 
-Harvest Moon lovers, rejoice! It's 2026 and your farm runs on vibes now.
+Harvest Moon lovers, rejoice! It's 2026 and your farm runs on vibes now (and completely in your browser).
 
 MooGPT is a chat-driven farming game where **you don't control a character - you chat with one**. 
 

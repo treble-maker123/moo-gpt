@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { createEmptyGameState } from "@/agent/state";
+import { createNewGameState } from "@/agent/state";
 import { FarmScene } from "@/components/FarmScene";
 
 export default function App() {
-  const [state] = useState(createEmptyGameState);
+  const [state] = useState(createNewGameState);
 
   return (
     <main className="app-shell">

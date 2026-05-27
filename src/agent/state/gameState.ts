@@ -1,3 +1,5 @@
+import type { AnimalType, Mood, Personality, ProductType, Season, Specialization } from "./types";
+
 export interface GameState {
   // meta
   season: Season;
@@ -38,7 +40,7 @@ export interface Farm {
 export interface Animal {
   id: string;
   name: string;
-  type: "cow";
+  type: AnimalType;
 
   health: number; // < 20 sick, > 80 increased productivity
 
@@ -84,18 +86,11 @@ export interface DecisionResolution {
 
 export interface DecisionDelta {
   trust: number; // if player ignores MooGPT and outcome goes badly, MooGPT trust drops
-
   gold: number;
   reputation: number;
 }
 
-export type Personality = "helpful" | "cautious" | "sassy";
-export type Specialization = "market_analyst" | "meteorologist" | "vet";
-export type ProductType = "milk" | "hay";
-export type Season = "spring" | "summer" | "autumn" | "fall";
-export type Mood = "optimistic" | "concerned" | "neural" | "excited" | "grim";
-
-export function createEmptyGameState(): GameState {
+export function createNewGameState(): GameState {
   return {
     season: "spring",
     turn: {
