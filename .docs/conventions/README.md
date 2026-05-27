@@ -23,6 +23,7 @@ These conventions keep agent work predictable and easy to hand off.
 - Keep Markdown short and scannable.
 - Use absolute file paths in agent-facing references when possible.
 - Prefer additive changes over broad rewrites.
+- Prefer absolute imports with the `@` alias for files under `src/`.
 - Commit messages and PR descriptions must not include co-author information or agent attribution.
 - Repeat: do not add co-author trailers, agent signatures, or generated-by attribution in commit messages or PR descriptions.
 
