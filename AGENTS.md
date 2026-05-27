@@ -1,0 +1,26 @@
+# Agent Entry Point
+
+Start here before making changes in this repository.
+
+## Read Order
+
+1. `AGENTS.md`
+2. `DEVELOPMENT.md`
+3. `.docs/conventions/README.md`
+4. `.docs/architecture.md`
+5. `.agents/<skill>/SKILL.md`
+
+## What Each File Is For
+
+- `AGENTS.md`: the top-level map for future agents
+- `DEVELOPMENT.md`: local setup and development environment notes
+- `.docs/conventions/README.md`: coding and development conventions
+- `.docs/architecture.md`: high-level project structure and intent
+- `.agents/<skill>/SKILL.md`: reusable workflows for specific agent behaviors
+- `.claude/skills/<skill>/SKILL.md`: Claude-facing wrappers that can delegate to shared agent skills
+
+## Working Rules
+
+- Keep these docs current when a task uncovers new rules, behaviors, or conventions.
+- Prefer updating the relevant doc now instead of relying on memory in a future session.
+- When a new skill is added, place it under `.agents/` and link it here if it is broadly useful.
