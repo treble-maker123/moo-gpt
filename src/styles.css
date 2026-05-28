@@ -575,6 +575,38 @@ button {
   height: calc(100% - 48px);
 }
 
+.debug-attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.debug-attr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.debug-attr-label {
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 100px;
+}
+
+.debug-attr-value {
+  color: #ccc;
+}
+
+.debug-attr-value-loaded { color: #64b5f6; }
+.debug-attr-value-new    { color: #81c784; }
+
 .debug-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -9,7 +9,7 @@ import type { AppLLM } from "@/agent/llm";
 
 function buildBriefingPrompt(state: GraphState): string {
   const { gameState } = state;
-  const { season, turn, character, farm, moogpt } = gameState;
+  const { turn, character, farm, moogpt } = gameState;
 
   const animalSummary =
     farm.animals.length === 0
@@ -32,7 +32,7 @@ About the game:
 
 Facts:
 
-Day ${turn.turnNumber}, ${season}. 
+Day ${turn.turnNumber}. 
 Action budgets remaining: ${turn.actionsRemaining}/${turn.actionsBudget}.
 Gold: ${character.gold}. 
 Reputation: ${character.reputation}.

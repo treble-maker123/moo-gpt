@@ -1,10 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { createNewGameState } from "@/agent/state";
 import { FarmScene } from "@/components/FarmScene";
 import { SetupModal } from "@/components/SetupModal";
 import type { SetupConfig } from "@/components/SetupModal";
 import { createLlm, isMooMode } from "@/agent/llm";
-import { useGameStore, loadSavedGameState } from "@/game/gameStore";
+import { useGameStore } from "@/game/gameStore";
 import { DEBUG_MODE } from "@/utils/debugMode";
 import { DebugPanel } from "@/components/DebugPanel";
 
@@ -34,7 +33,7 @@ export default function App() {
 
   const llm = useMemo(() => createLlm(config), [config]);
 
-  const { phase, messages, gameState, ephemeralState, isLoading, setLlm, startUserTurn, sendMessage } =
+  const { phase, messages, gameState, ephemeralState, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage } =
     useGameStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,10 +51,7 @@ export default function App() {
 
   // Start the first user turn once setup is dismissed
   useEffect(() => {
-    if (!showSetup) {
-      const savedState = loadSavedGameState() ?? createNewGameState();
-      startUserTurn(savedState);
-    }
+    if (!showSetup) startUserTurn();
   }, [showSetup, startUserTurn]);
 
   // Auto-scroll to latest message
@@ -82,7 +78,7 @@ export default function App() {
         <section className="game-scene" aria-label="Game world">
           <FarmScene state={gameState} />
 
-          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} />}
+          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} gameStateSource={gameStateSource} />}
 
           <div className="hud" aria-hidden="true">
             <div className="hud-group">
@@ -92,8 +88,9 @@ export default function App() {
               {phase === "world_turn" && <div className="hud-chip">World turn…</div>}
             </div>
             <div className="hud-group">
-              <div className="hud-chip">★ {gameState.character.gold}G</div>
-              <div className="hud-chip">🐄 ×{gameState.farm.animals.length}</div>
+              <div className="hud-chip">💰 {gameState.character.gold}G</div>
+              <div className="hud-chip">💪🏻 {gameState.turn.actionsRemaining}/{gameState.turn.actionsBudget}</div>
+              <div className="hud-chip">🐄 {gameState.farm.animals.filter(a => a.type === "cow").length}/{gameState.farm.limits.cow}</div>
             </div>
           </div>
         </section>

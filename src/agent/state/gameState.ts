@@ -1,4 +1,11 @@
-import type { AnimalType, Mood, Personality, ProductType, Season, Specialization } from "@/agent/state/types";
+import type {
+  AnimalType,
+  Mood,
+  Personality,
+  ProductType,
+  Season,
+  Specialization,
+} from "@/agent/state/types";
 
 export interface GameState {
   // meta
@@ -35,6 +42,7 @@ export interface MooGPT {
 
 export interface Farm {
   animals: Animal[];
+  limits: Record<AnimalType, number>;
 }
 
 export interface Animal {
@@ -100,7 +108,7 @@ export function createNewGameState(): GameState {
     },
     character: {
       gold: 25,
-      reputation: 0,
+      reputation: 60,
     },
     moogpt: {
       trust: 50,
@@ -108,7 +116,12 @@ export function createNewGameState(): GameState {
       specializations: [],
     },
     farm: {
-      animals: [],
+      animals: (() => {
+        const names = ["Cairne", "Baine", "Hamuul", "Magatha"];
+        const name = names[Math.floor(Math.random() * names.length)];
+        return [{ id: "cow-1", name, type: "cow" as const, health: 80, productivity: 1, age: 1, mood: 80 }];
+      })(),
+      limits: { cow: 3 },
     },
     market: {
       milk: 0,

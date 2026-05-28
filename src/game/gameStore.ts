@@ -17,7 +17,7 @@ export interface ChatMessage {
 
 const GAME_STATE_KEY = "moogpt:gameState";
 
-export function loadSavedGameState(): GameState | null {
+function loadSavedGameState(): GameState | null {
   try {
     const raw = localStorage.getItem(GAME_STATE_KEY);
     if (raw) return JSON.parse(raw) as GameState;
@@ -33,6 +33,13 @@ function saveGameState(state: GameState) {
   } catch (e) {
     console.warn("[gameStore] failed to save game state:", e);
   }
+}
+
+function initGameState(): { gameState: GameState; gameStateSource: "new" | "loaded" } {
+  const saved = loadSavedGameState();
+  return saved
+    ? { gameState: saved, gameStateSource: "loaded" }
+    : { gameState: createNewGameState(), gameStateSource: "new" };
 }
 
 function toDisplayMessages(rawMessages: unknown[]): ChatMessage[] {
@@ -52,16 +59,17 @@ interface GameStore {
   isLoading: boolean;
   llm: AppLLM | null;
   threadId: string;
+  gameStateSource: "new" | "loaded";
 
   setLlm: (llm: AppLLM) => void;
-  startUserTurn: (initialGameState: GameState) => Promise<void>;
+  startUserTurn: () => Promise<void>;
   sendMessage: (text: string) => Promise<void>;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
   phase: "user_turn",
   messages: [],
-  gameState: createNewGameState(),
+  ...initGameState(),
   ephemeralState: createNewEphemeralState(),
   isLoading: false,
   llm: null,
@@ -71,22 +79,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ llm });
   },
 
-  async startUserTurn(initialGameState) {
-    const { llm } = get();
+  async startUserTurn() {
+    const { llm, gameState } = get();
     if (!llm) return;
 
     const threadId = crypto.randomUUID();
-    set({ threadId, messages: [], gameState: initialGameState, isLoading: true });
+    set({ threadId, messages: [], isLoading: true });
 
     try {
       const result = await graph.invoke(
-        { gameState: initialGameState },
+        { gameState },
         { configurable: { thread_id: threadId, llm } },
       );
       if (isMooMode(llm)) await sleep(800 + Math.random() * 700);
       set({
         messages: toDisplayMessages(result.messages ?? []),
-        gameState: result.gameState ?? initialGameState,
+        gameState: result.gameState ?? gameState,
         ephemeralState: result.ephemeralState ?? createNewEphemeralState(),
       });
     } catch (err) {
@@ -115,16 +123,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ephemeralState: result.ephemeralState ?? createNewEphemeralState(),
       });
 
-      // Detect if the graph reached END (turn is over)
       const graphState = await graph.getState(config);
       if (graphState.next.length === 0) {
         saveGameState(finalGameState);
         set({ phase: "world_turn" });
 
-        // World turn placeholder — transitions back immediately for now
         setTimeout(() => {
           set({ phase: "user_turn" });
-          get().startUserTurn(finalGameState);
+          get().startUserTurn();
         }, 500);
       }
     } catch (err) {
