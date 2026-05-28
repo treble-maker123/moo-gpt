@@ -68,7 +68,7 @@ export interface Decision {
   urgent: boolean; // renders a warning
 
   options: DecisionOption[]; // options to be chosen
-  resolution: DecisionResolution; // chosen decision + outcome
+  resolution: DecisionResolution | null; // null until player resolves the decision
 }
 
 export interface DecisionOption {

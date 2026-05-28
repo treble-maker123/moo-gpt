@@ -1,80 +1,155 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { createNewGameState } from "@/agent/state";
 import { FarmScene } from "@/components/FarmScene";
 import { SetupModal } from "@/components/SetupModal";
 import type { SetupConfig } from "@/components/SetupModal";
 import { createLlm, isMooMode } from "@/agent/llm";
+import { useGameStore, loadSavedGameState } from "@/game/gameStore";
 
-const STORAGE_KEY = "moogpt:config";
+function TypingDots() {
+  const [count, setCount] = useState(1);
+  useEffect(() => {
+    const id = setInterval(() => setCount(c => (c % 3) + 1), 400);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{".".repeat(count)}</span>;
+}
+
+const CONFIG_KEY = "moogpt:config";
 
 function loadConfig(): SetupConfig {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(CONFIG_KEY);
     if (raw) return JSON.parse(raw) as SetupConfig;
-  // eslint-disable-next-line no-empty
   } catch {}
   return { ollamaEndpoint: "", mooMode: false };
 }
 
 export default function App() {
-  const [state] = useState(createNewGameState);
   const [showSetup, setShowSetup] = useState(true);
   const [config, setConfig] = useState<SetupConfig>(loadConfig);
+  const [input, setInput] = useState("");
 
   const llm = useMemo(() => createLlm(config), [config]);
 
+  const { phase, messages, gameState, isLoading, setLlm, startUserTurn, sendMessage } =
+    useGameStore();
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Keep the store's llm in sync with config changes
+  useEffect(() => {
+    setLlm(llm);
+  }, [llm, setLlm]);
+
   function handleSetupComplete(newConfig: SetupConfig) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(newConfig));
     setConfig(newConfig);
     setShowSetup(false);
   }
 
+  // Start the first user turn once setup is dismissed
+  useEffect(() => {
+    if (!showSetup) {
+      const savedState = loadSavedGameState() ?? createNewGameState();
+      startUserTurn(savedState);
+    }
+  }, [showSetup, startUserTurn]);
+
+  // Auto-scroll to latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function handleSend() {
+    const text = input.trim();
+    if (!text) return;
+    setInput("");
+    await sendMessage(text);
+  }
+
+  const inputDisabled = isLoading || phase === "world_turn";
+
   return (
     <>
-    {showSetup && (
-      <SetupModal initialConfig={config} onComplete={handleSetupComplete} />
-    )}
-    <main className="app-shell">
-      {/* ── Game world ─────────────────────────────────────────── */}
-      <section className="game-scene" aria-label="Game world">
-        <FarmScene state={state} />
+      {showSetup && (
+        <SetupModal initialConfig={config} onComplete={handleSetupComplete} />
+      )}
+      <main className="app-shell">
+        {/* ── Game world ─────────────────────────────────────────── */}
+        <section className="game-scene" aria-label="Game world">
+          <FarmScene state={gameState} />
 
-        <div className="hud" aria-hidden="true">
-          <div className="hud-group">
-            <div className="hud-chip">☀ {state.season}</div>
-            <div className="hud-chip">Day {state.turn.turnNumber}</div>
-            {isMooMode(llm) && <div className="hud-chip hud-chip-moo">Moo Mode</div>}
+          <div className="hud" aria-hidden="true">
+            <div className="hud-group">
+              <div className="hud-chip">☀ {gameState.season}</div>
+              <div className="hud-chip">Day {gameState.turn.turnNumber}</div>
+              {isMooMode(llm) && <div className="hud-chip hud-chip-moo">Moo Mode</div>}
+              {phase === "world_turn" && <div className="hud-chip">World turn…</div>}
+            </div>
+            <div className="hud-group">
+              <div className="hud-chip">★ {gameState.character.gold}G</div>
+              <div className="hud-chip">🐄 ×{gameState.farm.animals.length}</div>
+            </div>
           </div>
-          <div className="hud-group">
-            <div className="hud-chip">★ {state.character.gold}G</div>
-            <div className="hud-chip">🐄 ×{state.farm.animals.length}</div>
+        </section>
+
+        {/* ── MooGPT chat panel ──────────────────────────────────── */}
+        <aside className="chat-panel" aria-label="MooGPT chat">
+          <div className="chat-header">MooGPT</div>
+
+          <div className="chat-messages" aria-live="polite">
+            {messages.map((msg, i) => (
+              <div key={i} className={`chat-message-row chat-message-row-${msg.role}`}>
+                <span className="chat-avatar">
+                  {msg.role === "assistant" ? "🐄" : "🧑‍🌾"}
+                </span>
+                <div className={`chat-message chat-message-${msg.role}`}>
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div className="chat-message-row chat-message-row-assistant">
+                <span className="chat-avatar">🐄</span>
+                <div className="chat-message chat-message-assistant chat-message-loading">
+                  <TypingDots />
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
-        </div>
-      </section>
 
-      {/* ── MooGPT chat panel ──────────────────────────────────── */}
-      <aside className="chat-panel" aria-label="MooGPT chat">
-        <div className="chat-header">MooGPT</div>
+          <div className="chat-input-row">
+            <input
+              type="text"
+              className="chat-input"
+              placeholder={isLoading ? "MooGPT is thinking…" : "Ask MooGPT…"}
+              aria-label="Message MooGPT"
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && !inputDisabled && handleSend()}
+              disabled={inputDisabled}
+            />
+            <button
+              type="button"
+              className="chat-send"
+              onClick={handleSend}
+              disabled={inputDisabled}
+            >
+              ▶
+            </button>
+          </div>
 
-        <div className="chat-messages" aria-live="polite">
-          {/* messages will render here */}
-        </div>
-
-        <div className="chat-input-row">
-          <input
-            type="text"
-            className="chat-input"
-            placeholder="Ask MooGPT..."
-            aria-label="Message MooGPT"
-          />
-          <button type="button" className="chat-send">▶</button>
-        </div>
-
-        <button type="button" className="settings-btn">
-          ⚙ Settings
-        </button>
-      </aside>
-    </main>
+          <button
+            type="button"
+            className="settings-btn"
+            onClick={() => setShowSetup(true)}
+          >
+            ⚙ Settings
+          </button>
+        </aside>
+      </main>
     </>
   );
 }

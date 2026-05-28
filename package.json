@@ -22,7 +22,8 @@
     "@langchain/ollama": "^1.2.7",
     "pixi.js": "^8.18.1",
     "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react-dom": "19.1.1",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

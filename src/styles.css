@@ -124,10 +124,95 @@ button {
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   /* Custom scrollbar to match theme */
   scrollbar-width: thin;
   scrollbar-color: var(--panel-border) var(--panel);
+}
+
+/* === CHAT BUBBLES === */
+
+.chat-message-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.chat-message-row-user {
+  flex-direction: row-reverse;
+}
+
+.chat-avatar {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  line-height: 1;
+  padding-top: 4px;
+}
+
+.chat-message {
+  max-width: 78%;
+  padding: 7px 11px;
+  line-height: 1.35;
+  position: relative;
+  word-break: break-word;
+}
+
+/* MooGPT — left-aligned, left tail */
+.chat-message-assistant {
+  align-self: flex-start;
+  background: var(--panel-mid);
+  border: 2px solid var(--panel-border);
+  color: var(--txt-normal);
+}
+
+.chat-message-assistant::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 10px;
+  border: 5px solid transparent;
+  border-right-color: var(--panel-border);
+}
+
+.chat-message-assistant::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 11px;
+  border: 4px solid transparent;
+  border-right-color: var(--panel-mid);
+}
+
+/* Player — right-aligned, right tail */
+.chat-message-user {
+  align-self: flex-end;
+  background: #3a2800;
+  border: 2px solid var(--panel-glow);
+  color: var(--txt-bright);
+}
+
+.chat-message-user::before {
+  content: "";
+  position: absolute;
+  right: -9px;
+  top: 10px;
+  border: 5px solid transparent;
+  border-left-color: var(--panel-glow);
+}
+
+.chat-message-user::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  top: 11px;
+  border: 4px solid transparent;
+  border-left-color: #3a2800;
+}
+
+/* Loading indicator */
+.chat-message-loading {
+  color: var(--txt-dim);
+  letter-spacing: 0.2em;
 }
 
 .chat-input-row {

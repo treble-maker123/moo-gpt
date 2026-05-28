@@ -1,8 +1,6 @@
 import type { GraphState, GraphUpdate } from "@/agent/state";
+import { createNewEphemeralState } from "@/agent/state";
 
-// Pure TS — no LLM. Runs after all end-of-turn nodes converge. Clears all
-// turn-scoped ephemeralState fields so the graph can terminate cleanly. React
-// writes the resulting gameState to localStorage and starts a fresh graph run.
 export function resetTurnState(_state: GraphState): GraphUpdate {
-  throw new Error("TODO: implement resetTurnState");
+  return { ephemeralState: createNewEphemeralState() };
 }

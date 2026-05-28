@@ -23,6 +23,8 @@ export interface EphemeralState {
   pendingDecisionId: string | null;
   // set by execute_action when actionsRemaining hits 0, or when player explicitly ends turn; triggers end-of-turn fan-out
   shouldEndTurn: boolean;
+  // accumulated across resolve_decision calls; applied and reset by update_assistant at end-of-turn
+  pendingTrustDelta: number;
 }
 
 export function createNewEphemeralState(): EphemeralState {
@@ -32,5 +34,6 @@ export function createNewEphemeralState(): EphemeralState {
     appliedDeltas: [],
     pendingDecisionId: null,
     shouldEndTurn: false,
+    pendingTrustDelta: 0,
   };
 }
