@@ -5,6 +5,7 @@ import { createNewGameState, createNewEphemeralState } from "@/agent/state";
 import type { GameState, EphemeralState } from "@/agent/state";
 import { isMooMode } from "@/agent/llm";
 import type { AppLLM } from "@/agent/llm";
+import type { LlmCallRecord } from "@/agent/llm/llmCallLog";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
@@ -56,6 +57,7 @@ interface GameStore {
   messages: ChatMessage[];
   gameState: GameState;
   ephemeralState: EphemeralState;
+  llmCallLog: LlmCallRecord[];
   isLoading: boolean;
   llm: AppLLM | null;
   threadId: string;
@@ -71,6 +73,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   messages: [],
   ...initGameState(),
   ephemeralState: createNewEphemeralState(),
+  llmCallLog: [],
   isLoading: false,
   llm: null,
   threadId: "",
@@ -84,12 +87,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!llm) return;
 
     const threadId = crypto.randomUUID();
-    set({ threadId, messages: [], isLoading: true });
+    set({ threadId, messages: [], llmCallLog: [], isLoading: true });
+
+    const logLlmCall = (record: LlmCallRecord) =>
+      set(s => ({ llmCallLog: [...s.llmCallLog, record] }));
 
     try {
       const result = await graph.invoke(
         { gameState },
-        { configurable: { thread_id: threadId, llm } },
+        { configurable: { thread_id: threadId, llm, logLlmCall } },
       );
       if (isMooMode(llm)) await sleep(800 + Math.random() * 700);
       set({
@@ -111,8 +117,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     set(s => ({ messages: [...s.messages, { role: "user", text }], isLoading: true }));
 
+    const logLlmCall = (record: LlmCallRecord) =>
+      set(s => ({ llmCallLog: [...s.llmCallLog, record] }));
+
     try {
-      const config = { configurable: { thread_id: threadId, llm } };
+      const config = { configurable: { thread_id: threadId, llm, logLlmCall } };
       const result = await graph.invoke({ messages: [new HumanMessage(text)] }, config);
 
       if (isMooMode(llm)) await sleep(800 + Math.random() * 700);

@@ -33,7 +33,7 @@ export default function App() {
 
   const llm = useMemo(() => createLlm(config), [config]);
 
-  const { phase, messages, gameState, ephemeralState, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage } =
+  const { phase, messages, gameState, ephemeralState, llmCallLog, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage } =
     useGameStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,7 @@ export default function App() {
         <section className="game-scene" aria-label="Game world">
           <FarmScene state={gameState} />
 
-          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} gameStateSource={gameStateSource} />}
+          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} llmCallLog={llmCallLog} gameStateSource={gameStateSource} />}
 
           <div className="hud" aria-hidden="true">
             <div className="hud-group">

@@ -642,6 +642,140 @@ button {
   flex: 1;
 }
 
+.debug-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #e67e22;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.debug-llm-calls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.debug-llm-empty {
+  color: var(--txt-dim);
+  font-size: 0.85rem;
+  padding: 12px 0;
+}
+
+.debug-llm-record {
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.debug-llm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: #2a2a2a;
+  border: none;
+  color: var(--txt-normal);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.debug-llm-header:hover {
+  background: #333;
+}
+
+.debug-llm-index {
+  color: var(--txt-dim);
+  min-width: 24px;
+}
+
+.debug-llm-node {
+  font-weight: 600;
+  color: #64b5f6;
+  flex: 1;
+}
+
+.debug-llm-time {
+  color: var(--txt-dim);
+  font-size: 0.8rem;
+}
+
+.debug-llm-chevron {
+  color: var(--txt-dim);
+  font-size: 0.7rem;
+}
+
+.debug-llm-body {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #1a1a1a;
+}
+
+.debug-llm-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #e67e22;
+}
+
+.debug-llm-message {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.debug-llm-role {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--txt-dim);
+}
+
+.debug-llm-message-system .debug-llm-role { color: #9575cd; }
+.debug-llm-message-human .debug-llm-role  { color: #4db6ac; }
+.debug-llm-message-ai .debug-llm-role     { color: #a5d6a7; }
+
+.debug-llm-content {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: #ccc;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 6px 8px;
+  background: #222;
+  border-radius: 4px;
+}
+
+.debug-llm-response {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: #a5d6a7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 6px 8px;
+  background: #222;
+  border-radius: 4px;
+}
+
 .setup-hint {
   margin: 0;
   font-size: 0.8rem;

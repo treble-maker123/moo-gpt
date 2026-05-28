@@ -6,6 +6,7 @@ import {
 } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
+import type { LogLlmCall } from "@/agent/llm/llmCallLog";
 
 function buildBriefingPrompt(state: GraphState): string {
   const { gameState } = state;
@@ -38,7 +39,7 @@ Gold: ${character.gold}.
 Reputation: ${character.reputation}.
 Farm: ${animalSummary}.
 
-Deliver a concise daily briefing in 50 words or less, using only provided facts and do not provide any additional information.`;
+Deliver a concise daily briefing in 50 words or less, using only provided facts and do not provide any additional information, and ask the player what actions they would like to take next`;
 }
 
 export async function generateBriefing(
@@ -50,14 +51,27 @@ export async function generateBriefing(
     throw new Error(
       "No LLM in configurable — pass { configurable: { llm } } when invoking the graph.",
     );
+  const logLlmCall = config?.configurable?.logLlmCall as LogLlmCall | undefined;
 
   const systemPrompt = buildBriefingPrompt(state);
+  const promptMessages = [
+    { role: "system", content: systemPrompt },
+    { role: "human",  content: "Give me today's briefing." },
+  ] as const;
   const response = await llm.invoke([
-    new SystemMessage(systemPrompt),
-    new HumanMessage("Give me today's briefing."),
+    new SystemMessage(promptMessages[0].content),
+    new HumanMessage(promptMessages[1].content),
   ]);
 
   const text = typeof response.content === "string" ? response.content : "Moo.";
+
+  logLlmCall?.({
+    id: crypto.randomUUID(),
+    node: "generateBriefing",
+    timestamp: Date.now(),
+    messages: [...promptMessages],
+    response: text,
+  });
 
   return {
     messages: [new AIMessage(text)],
