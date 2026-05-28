@@ -122,7 +122,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
     try {
       const config = { configurable: { thread_id: threadId, llm, logLlmCall } };
-      const result = await graph.invoke({ messages: [new HumanMessage(text)] }, config);
+      // updateState appends the human message to the interrupted checkpoint,
+      // then invoke(null) resumes from the interrupt point without restarting the graph.
+      // Passing a non-null state update directly to invoke() causes LangGraph to
+      // restart from START instead of resuming.
+      await graph.updateState(config, { messages: [new HumanMessage(text)] });
+      const result = await graph.invoke(null, config);
 
       if (isMooMode(llm)) await sleep(800 + Math.random() * 700);
       const finalGameState = result.gameState as GameState;

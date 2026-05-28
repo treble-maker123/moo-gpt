@@ -106,11 +106,11 @@ const workflow = new StateGraph(GraphAnnotation)
       isLlm: true,
       purpose: "MooGPT writes an in-character response to the player.",
       characteristics:
-        "LLM call. Tone is determined by moogpt.personality and moogpt.trust. On the success path, receives appliedDeltas to mention specific outcomes. On the error path, receives validationError to refuse warmly. May optionally present a pending Decision — when it does, sets pendingDecisionId so the next player message routes through resolve_decision. Appends an AIMessage to messages. Graph interrupts after.",
+        "LLM call. Tone follows moogpt.personality. Handles four paths: (1) query — answers the player's question from game state; (2) clarify — asks a follow-up when intent was ambiguous; (3) validationError — warm refusal when an action was illegal; (4) appliedDeltas — narrates what just happened after a successful action. Appends an AIMessage to messages. Graph interrupts after.",
       inputs:
-        "gameState, ephemeralState.appliedDeltas, ephemeralState.validationError, ephemeralState.currentIntent",
+        "gameState, ephemeralState.currentIntent, ephemeralState.appliedDeltas, ephemeralState.validationError",
       outputs:
-        "messages (response AIMessage appended), ephemeralState.pendingDecisionId (optional)",
+        "messages (response AIMessage appended)",
     },
   })
   .addNode("resolve_decision", resolveDecision, {
