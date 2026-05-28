@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // LLM call — tool-calling / structured output. Converts the latest HumanMessage
 // into a PlayerIntent (GameAction or ConversationMove). Never mutates gameState.

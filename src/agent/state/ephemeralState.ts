@@ -1,4 +1,4 @@
-import type { ConversationMove, GameAction } from "./types";
+import type { ConversationMove, GameAction } from "@/agent/state/types";
 
 export interface PlayerIntent {
   type: GameAction | ConversationMove;

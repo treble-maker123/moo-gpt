@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // Pure TS — no LLM. Runs only at end-of-turn as part of the parallel fan-out.
 // Applies accumulated trust deltas from the day, applies trust drift, then

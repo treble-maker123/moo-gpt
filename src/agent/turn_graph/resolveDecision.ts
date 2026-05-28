@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // LLM call — structured output. Reached only when pendingDecisionId is set.
 // Matches the player's response to a decision option, clears pendingDecisionId,

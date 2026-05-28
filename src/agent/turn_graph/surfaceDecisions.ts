@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // Rule-based — no LLM. Runs only at end-of-turn as part of the parallel
 // fan-out. Checks thresholds (sick animal, low gold, season change) and appends

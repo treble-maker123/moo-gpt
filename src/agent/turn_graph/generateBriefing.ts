@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // LLM call — free prose, in-character. Appends AIMessage to messages, then
 // graph interrupts so the player can read and respond.

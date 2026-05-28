@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // Pure TS — no LLM. Runs after all end-of-turn nodes converge. Clears all
 // turn-scoped ephemeralState fields so the graph can terminate cleanly. React

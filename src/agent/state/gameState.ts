@@ -1,4 +1,4 @@
-import type { AnimalType, Mood, Personality, ProductType, Season, Specialization } from "./types";
+import type { AnimalType, Mood, Personality, ProductType, Season, Specialization } from "@/agent/state/types";
 
 export interface GameState {
   // meta

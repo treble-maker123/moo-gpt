@@ -104,7 +104,7 @@ short-term memory — they persist across days and give the LLM context for
 briefings and narrative.
 
 **Long-term memory (deferred).** A mechanism that periodically compresses
-journal entries and decision history into a summarised narrative for the model
+journal entries and decision history into a summarized narrative for the model
 to reference is planned but excluded from the initial version.
 
 ---

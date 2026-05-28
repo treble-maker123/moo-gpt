@@ -1,4 +1,4 @@
-import type { GraphState, GraphUpdate } from "../state";
+import type { GraphState, GraphUpdate } from "@/agent/state";
 
 // LLM call — free prose, in-character. Writes MooGPT's response using
 // appliedDeltas (success path) or validationError (refusal path). May set

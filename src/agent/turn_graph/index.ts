@@ -1,17 +1,17 @@
 import { END, MemorySaver, START, StateGraph } from "@langchain/langgraph";
-import { GraphAnnotation } from "../state";
-import type { GraphState } from "../state";
-import { generateBriefing } from "./generateBriefing";
-import { parseIntent } from "./parseIntent";
-import { validateAction } from "./validateAction";
-import { executeAction } from "./executeAction";
-import { generateNarrative } from "./generateNarrative";
-import { resolveDecision } from "./resolveDecision";
-import { generateJournalEntry } from "./generateJournalEntry";
-import { surfaceDecisions } from "./surfaceDecisions";
-import { endTurn } from "./endTurn";
-import { updateAssistant } from "./updateAssistant";
-import { resetTurnState } from "./resetTurnState";
+import { GraphAnnotation } from "@/agent/state";
+import type { GraphState } from "@/agent/state";
+import { generateBriefing } from "@/agent/turn_graph/generateBriefing";
+import { parseIntent } from "@/agent/turn_graph/parseIntent";
+import { validateAction } from "@/agent/turn_graph/validateAction";
+import { executeAction } from "@/agent/turn_graph/executeAction";
+import { generateNarrative } from "@/agent/turn_graph/generateNarrative";
+import { resolveDecision } from "@/agent/turn_graph/resolveDecision";
+import { generateJournalEntry } from "@/agent/turn_graph/generateJournalEntry";
+import { surfaceDecisions } from "@/agent/turn_graph/surfaceDecisions";
+import { endTurn } from "@/agent/turn_graph/endTurn";
+import { updateAssistant } from "@/agent/turn_graph/updateAssistant";
+import { resetTurnState } from "@/agent/turn_graph/resetTurnState";
 
 // --- Routing helpers ---
 
