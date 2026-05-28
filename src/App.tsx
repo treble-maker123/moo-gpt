@@ -1,11 +1,39 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { createNewGameState } from "@/agent/state";
 import { FarmScene } from "@/components/FarmScene";
+import { SetupModal } from "@/components/SetupModal";
+import type { SetupConfig } from "@/components/SetupModal";
+import { createLlm, isMooMode } from "@/agent/llm";
+
+const STORAGE_KEY = "moogpt:config";
+
+function loadConfig(): SetupConfig {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as SetupConfig;
+  // eslint-disable-next-line no-empty
+  } catch {}
+  return { ollamaEndpoint: "" };
+}
 
 export default function App() {
   const [state] = useState(createNewGameState);
+  const [showSetup, setShowSetup] = useState(true);
+  const [config, setConfig] = useState<SetupConfig>(loadConfig);
+
+  const llm = useMemo(() => createLlm(config), [config]);
+
+  function handleSetupComplete(newConfig: SetupConfig) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
+    setConfig(newConfig);
+    setShowSetup(false);
+  }
 
   return (
+    <>
+    {showSetup && (
+      <SetupModal initialConfig={config} onComplete={handleSetupComplete} />
+    )}
     <main className="app-shell">
       {/* ── Game world ─────────────────────────────────────────── */}
       <section className="game-scene" aria-label="Game world">
@@ -15,6 +43,7 @@ export default function App() {
           <div className="hud-group">
             <div className="hud-chip">☀ {state.season}</div>
             <div className="hud-chip">Day {state.turn.turnNumber}</div>
+            {isMooMode(llm) && <div className="hud-chip hud-chip-moo">Moo Mode</div>}
           </div>
           <div className="hud-group">
             <div className="hud-chip">★ {state.character.gold}G</div>
@@ -46,5 +75,6 @@ export default function App() {
         </button>
       </aside>
     </main>
+    </>
   );
 }

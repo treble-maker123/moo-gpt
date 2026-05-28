@@ -8,6 +8,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // LangGraph / LangChain use AsyncLocalStorage from node:async_hooks.
+      // The browser has no equivalent; this polyfill satisfies the import.
+      "node:async_hooks": fileURLToPath(new URL("./src/polyfills/async_hooks.ts", import.meta.url)),
     },
   },
   server: {
