@@ -13,7 +13,7 @@ function loadConfig(): SetupConfig {
     if (raw) return JSON.parse(raw) as SetupConfig;
   // eslint-disable-next-line no-empty
   } catch {}
-  return { ollamaEndpoint: "" };
+  return { ollamaEndpoint: "", mooMode: false };
 }
 
 export default function App() {

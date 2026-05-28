@@ -3,6 +3,7 @@ import { OLLAMA_MODEL } from "@/agent/llm";
 
 export interface SetupConfig {
   ollamaEndpoint: string;
+  mooMode: boolean;
 }
 
 type CheckState = "idle" | "checking" | "ok" | "error";
@@ -10,6 +11,7 @@ type CheckState = "idle" | "checking" | "ok" | "error";
 interface StepProps {
   config: SetupConfig;
   onChange: (patch: Partial<SetupConfig>) => void;
+  onReadyChange: (ready: boolean) => void;
 }
 
 interface Step {
@@ -28,7 +30,7 @@ async function pingOllama(endpoint: string): Promise<string | null> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: OLLAMA_MODEL,
-        prompt: `Please don't respond with anything besides "I'm online, moo."`,
+        prompt: `Please don't respond with anything besides "Moo, ahem... Ooof, pardon me, I'm here. Howdy!"`,
         stream: false,
       }),
       signal: AbortSignal.timeout(10000),
@@ -65,11 +67,15 @@ function OllamaInstructions() {
   );
 }
 
-function OllamaStep({ config, onChange }: StepProps) {
+function OllamaStep({ config, onChange, onReadyChange }: StepProps) {
   const [checkState, setCheckState] = useState<CheckState>("idle");
   const [checkError, setCheckError] = useState<string | null>(null);
   const [modelReply, setModelReply] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    onReadyChange(config.mooMode || checkState === "ok");
+  }, [config.mooMode, checkState, onReadyChange]);
 
   useEffect(() => {
     const raw = config.ollamaEndpoint.trim();
@@ -133,6 +139,7 @@ function OllamaStep({ config, onChange }: StepProps) {
             onChange={(e) => onChange({ ollamaEndpoint: e.target.value })}
             spellCheck={false}
             autoComplete="url"
+            disabled={config.mooMode}
           />
           {statusIcon && (
             <span className={`setup-check-icon ${statusClass}`} aria-live="polite">
@@ -143,32 +150,39 @@ function OllamaStep({ config, onChange }: StepProps) {
         {checkError && (
           <span className="setup-field-error" role="alert">{checkError}</span>
         )}
-        {modelReply && (
-          <span className="setup-model-reply" aria-live="polite">
-            MooGPT: {modelReply}
-          </span>
-        )}
+        <span className="setup-model-reply" aria-live="polite">
+          MooGPT: {modelReply ?? "Moo, moooooo."}
+        </span>
       </label>
-      <p className="setup-hint">
-        Optional — leave blank to play in{" "}
-        <strong>Moo Mode</strong>, where MooGPT speaks only in moos.
+      <p className="setup-hint-lg">
+        Alternatively, click the checkbox below to enter Moo Mode, where MooGPT speaks only in moo's and anything goes.
       </p>
+      <label className="setup-moo-mode-label">
+        <input
+          type="checkbox"
+          checked={config.mooMode}
+          onChange={(e) => onChange({ mooMode: e.target.checked, ollamaEndpoint: e.target.checked ? "" : config.ollamaEndpoint })}
+        />
+        Enter Moo Mode
+      </label>
     </div>
   );
 }
 
 async function validateOllamaStep(config: SetupConfig): Promise<string | null> {
+  if (config.mooMode) return null;
+
   const raw = config.ollamaEndpoint.trim();
-  if (!raw) return null; // blank = Moo Mode, always valid
+  if (!raw) return "Enter an Ollama endpoint URL, or check the Moo Mode box to continue.";
 
   try {
     new URL(raw);
   } catch {
-    return "Enter a valid URL or leave blank for Moo Mode.";
+    return "Enter a valid URL, or check the Moo Mode box to continue.";
   }
 
   const reply = await pingOllama(raw);
-  if (reply === null) return `Could not reach ${OLLAMA_MODEL} at that URL. Check Ollama is running, or leave blank for Moo Mode.`;
+  if (reply === null) return `Could not reach ${OLLAMA_MODEL} at that URL. Check Ollama is running, or enable Moo Mode.`;
 
   return null;
 }
@@ -192,6 +206,7 @@ export function SetupModal({ initialConfig, onComplete }: SetupModalProps) {
   const [config, setConfig] = useState<SetupConfig>(initialConfig);
   const [stepError, setStepError] = useState<string | null>(null);
   const [advancing, setAdvancing] = useState(false);
+  const [stepReady, setStepReady] = useState(false);
 
   function patch(update: Partial<SetupConfig>) {
     setConfig((prev) => ({ ...prev, ...update }));
@@ -235,7 +250,7 @@ export function SetupModal({ initialConfig, onComplete }: SetupModalProps) {
           </h2>
         </div>
 
-        <div className="setup-body">{current.render({ config, onChange: patch })}</div>
+        <div className="setup-body">{current.render({ config, onChange: patch, onReadyChange: setStepReady })}</div>
 
         {stepError && (
           <p className="setup-step-error" role="alert">{stepError}</p>
@@ -255,7 +270,7 @@ export function SetupModal({ initialConfig, onComplete }: SetupModalProps) {
           <button
             className="setup-btn setup-btn-primary"
             onClick={handleAdvance}
-            disabled={advancing}
+            disabled={advancing || !stepReady}
           >
             {advancing ? "Checking…" : isLast ? "Start Game ▶" : "Next →"}
           </button>

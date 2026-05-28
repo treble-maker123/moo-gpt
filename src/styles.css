@@ -409,6 +409,23 @@ button {
   color: var(--txt-normal);
 }
 
+.setup-hint-lg {
+  margin: 8px 0 6px;
+  font-size: 0.9rem;
+  color: var(--txt-dim);
+  line-height: 1.4;
+}
+
+.setup-moo-mode-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--txt-normal);
+  cursor: pointer;
+  margin-top: 4px;
+}
+
 .setup-footer {
   display: flex;
   align-items: center;
