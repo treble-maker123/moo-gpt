@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { HumanMessage } from "@langchain/core/messages";
 import { graph } from "@/agent/turn_graph";
-import { createNewGameState } from "@/agent/state";
-import type { GameState } from "@/agent/state";
+import { createNewGameState, createNewEphemeralState } from "@/agent/state";
+import type { GameState, EphemeralState } from "@/agent/state";
 import { isMooMode } from "@/agent/llm";
 import type { AppLLM } from "@/agent/llm";
 
@@ -48,6 +48,7 @@ interface GameStore {
   phase: GamePhase;
   messages: ChatMessage[];
   gameState: GameState;
+  ephemeralState: EphemeralState;
   isLoading: boolean;
   llm: AppLLM | null;
   threadId: string;
@@ -61,6 +62,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   phase: "user_turn",
   messages: [],
   gameState: createNewGameState(),
+  ephemeralState: createNewEphemeralState(),
   isLoading: false,
   llm: null,
   threadId: "",
@@ -85,6 +87,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({
         messages: toDisplayMessages(result.messages ?? []),
         gameState: result.gameState ?? initialGameState,
+        ephemeralState: result.ephemeralState ?? createNewEphemeralState(),
       });
     } catch (err) {
       console.error("[gameStore] startUserTurn error:", err);
@@ -109,6 +112,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({
         messages: toDisplayMessages(result.messages ?? []),
         gameState: finalGameState,
+        ephemeralState: result.ephemeralState ?? createNewEphemeralState(),
       });
 
       // Detect if the graph reached END (turn is over)

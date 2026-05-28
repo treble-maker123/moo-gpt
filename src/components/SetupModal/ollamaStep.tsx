@@ -12,7 +12,7 @@ export async function pingOllama(endpoint: string): Promise<string | null> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: OLLAMA_MODEL,
-        prompt: `Please don't respond with anything besides "Moo, ahem... Ooof, pardon me, I'm here. Howdy!"`,
+        prompt: `Please don't respond with anything besides "Moo, ahem... I mean, howdy!"`,
         stream: false,
       }),
       signal: AbortSignal.timeout(10000),

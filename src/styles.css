@@ -483,6 +483,133 @@ button {
   color: #f0c0ff;
 }
 
+/* === DEBUG PANEL === */
+
+.debug-toggle-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 30;
+  padding: 6px 14px;
+  background: #1a3a1a;
+  border: 2px solid #4caf50;
+  color: #a5d6a7;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.debug-toggle-btn:hover {
+  background: #254a25;
+}
+
+.debug-modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: stretch;
+}
+
+.debug-modal {
+  position: relative;
+  flex: 1;
+  background: #0e1a0e;
+  border: 2px solid #4caf50;
+  margin: 16px;
+  overflow: auto;
+}
+
+.debug-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: 2px solid #4caf50;
+  color: #a5d6a7;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.debug-modal-close:hover {
+  background: #254a25;
+}
+
+.debug-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #4caf50;
+  padding: 8px 8px 0;
+}
+
+.debug-tab {
+  padding: 4px 14px;
+  background: transparent;
+  border: 2px solid #4caf50;
+  border-bottom: none;
+  color: #4caf50;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-right: 4px;
+  opacity: 0.6;
+}
+
+.debug-tab:hover {
+  opacity: 0.9;
+}
+
+.debug-tab-active {
+  background: #1a3a1a;
+  opacity: 1;
+  color: #a5d6a7;
+}
+
+.debug-tab-content {
+  padding: 12px;
+  overflow: auto;
+  height: calc(100% - 48px);
+}
+
+.debug-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: 100%;
+}
+
+.debug-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.debug-column-header {
+  font-size: 0.8rem;
+  color: #4caf50;
+  border-bottom: 1px solid #4caf50;
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.debug-json {
+  margin: 0;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #a5d6a7;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: auto;
+  flex: 1;
+}
+
 .setup-hint {
   margin: 0;
   font-size: 0.8rem;

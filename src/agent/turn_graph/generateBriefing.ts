@@ -9,7 +9,7 @@ import type { AppLLM } from "@/agent/llm";
 
 function buildBriefingPrompt(state: GraphState): string {
   const { gameState } = state;
-  const { season, turn, character, farm, market, moogpt } = gameState;
+  const { season, turn, character, farm, moogpt } = gameState;
 
   const animalSummary =
     farm.animals.length === 0
@@ -21,20 +21,24 @@ function buildBriefingPrompt(state: GraphState): string {
           )
           .join(", ");
 
-  return `You are MooGPT, a ${moogpt.personality} AI farm assistant. 
-  
-Trust level: ${moogpt.trust}/100.
+  return `You are MooGPT, an AI farm assistant for a farming game.
+
+Your current personality: ${moogpt.personality}.
+Explanation of personality: cautious warns of risks, helpful is upbeat and practical, sassy is wry and confident.
+
+About the game:
+
+1. The game currently only supports cows.
+
+Facts:
+
 Day ${turn.turnNumber}, ${season}. 
-Actions remaining: ${turn.actionsRemaining}/${turn.actionsBudget}.
+Action budgets remaining: ${turn.actionsRemaining}/${turn.actionsBudget}.
 Gold: ${character.gold}. 
 Reputation: ${character.reputation}.
 Farm: ${animalSummary}.
-Market prices — milk: ${market.milk}g.
 
-Deliver a concise daily briefing in 50 words or less, using only provided facts.
-Summarize what changed overnight and what the player should focus on today.
-
-Match your personality: cautious warns of risks, helpful is upbeat and practical, sassy is wry and confident.`;
+Deliver a concise daily briefing in 50 words or less, using only provided facts and do not provide any additional information.`;
 }
 
 export async function generateBriefing(

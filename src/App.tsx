@@ -5,6 +5,8 @@ import { SetupModal } from "@/components/SetupModal";
 import type { SetupConfig } from "@/components/SetupModal";
 import { createLlm, isMooMode } from "@/agent/llm";
 import { useGameStore, loadSavedGameState } from "@/game/gameStore";
+import { DEBUG_MODE } from "@/utils/debugMode";
+import { DebugPanel } from "@/components/DebugPanel";
 
 function TypingDots() {
   const [count, setCount] = useState(1);
@@ -32,7 +34,7 @@ export default function App() {
 
   const llm = useMemo(() => createLlm(config), [config]);
 
-  const { phase, messages, gameState, isLoading, setLlm, startUserTurn, sendMessage } =
+  const { phase, messages, gameState, ephemeralState, isLoading, setLlm, startUserTurn, sendMessage } =
     useGameStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -79,6 +81,8 @@ export default function App() {
         {/* ── Game world ─────────────────────────────────────────── */}
         <section className="game-scene" aria-label="Game world">
           <FarmScene state={gameState} />
+
+          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} />}
 
           <div className="hud" aria-hidden="true">
             <div className="hud-group">
