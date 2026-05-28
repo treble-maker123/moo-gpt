@@ -10,10 +10,13 @@
     "lint": "eslint .",
     "format": "eslint . --fix",
     "preview": "vite preview",
-    "release": "tsc --noEmit && vite build --outDir docs --emptyOutDir"
+    "release": "tsc --noEmit && vite build --outDir docs --emptyOutDir",
+    "update:graph": "tsx scripts/update-graph.ts"
   },
   "dependencies": {
+    "@langchain/core": "^1.1.48",
     "@langchain/langgraph": "0.4.9",
+    "@langchain/ollama": "^1.2.7",
     "pixi.js": "^8.18.1",
     "react": "19.1.1",
     "react-dom": "19.1.1"
@@ -25,6 +28,7 @@
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.2",
     "eslint": "^9.39.4",
+    "tsx": "^4.22.3",
     "typescript": "5.9.2",
     "typescript-eslint": "^8.60.0",
     "vite": "7.1.4",
