@@ -2,7 +2,7 @@ import { END, MemorySaver, START, StateGraph } from "@langchain/langgraph";
 import { GraphAnnotation } from "@/agent/state";
 import type { GraphState } from "@/agent/state";
 import { generateBriefing } from "@/agent/turn_graph/generateBriefing";
-import { parseIntent } from "@/agent/turn_graph/parseIntent";
+import { parseIntent } from "@/agent/turn_graph/parse_intent";
 import { validateAction } from "@/agent/turn_graph/validateAction";
 import { executeAction } from "@/agent/turn_graph/executeAction";
 import { generateNarrative } from "@/agent/turn_graph/generateNarrative";
