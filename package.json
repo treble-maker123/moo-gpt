@@ -10,7 +10,10 @@
     "lint": "eslint .",
     "format": "eslint . --fix",
     "preview": "vite preview",
-    "release": "tsc --noEmit && vite build --outDir docs --emptyOutDir",
+    "update:release": "tsc --noEmit && vite build --outDir docs --emptyOutDir",
+    "release:major": "npm version major --no-git-tag-version && npm run update:release && git add -A && VERSION=$(node -p \"require('./package.json').version\") && git commit -m \"v$VERSION\" && git tag \"v$VERSION\"",
+    "release:minor": "npm version minor --no-git-tag-version && npm run update:release && git add -A && VERSION=$(node -p \"require('./package.json').version\") && git commit -m \"v$VERSION\" && git tag \"v$VERSION\"",
+    "release:patch": "npm version patch --no-git-tag-version && npm run update:release && git add -A && VERSION=$(node -p \"require('./package.json').version\") && git commit -m \"v$VERSION\" && git tag \"v$VERSION\"",
     "update:graph": "tsx scripts/update-graph.ts"
   },
   "dependencies": {
