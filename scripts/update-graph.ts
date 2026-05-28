@@ -9,7 +9,8 @@ const outDir = join(__dirname, "../.docs/graphs");
 mkdirSync(outDir, { recursive: true });
 
 const INTERNAL_NODES = new Set(["__start__", "__end__"]);
-const CUSTOM_KEYS: Array<"purpose" | "characteristics" | "inputs" | "outputs"> = [
+const CUSTOM_KEYS: Array<"isLlm" | "purpose" | "characteristics" | "inputs" | "outputs"> = [
+  "isLlm",
   "purpose",
   "characteristics",
   "inputs",
@@ -21,6 +22,7 @@ type NodeMeta = {
   characteristics?: string;
   inputs?: string;
   outputs?: string;
+  isLlm?: boolean;
 };
 
 // getGraph() returns shared references to the builder's nodeSpec.metadata objects.
@@ -32,6 +34,7 @@ const savedMeta = new Map<string, NodeMeta>();
 for (const [id, node] of Object.entries(drawable.nodes)) {
   if (INTERNAL_NODES.has(id) || !node.metadata) continue;
   savedMeta.set(id, {
+    isLlm: node.metadata.isLlm as boolean | undefined,
     purpose: node.metadata.purpose as string | undefined,
     characteristics: node.metadata.characteristics as string | undefined,
     inputs: node.metadata.inputs as string | undefined,
@@ -42,7 +45,17 @@ for (const [id, node] of Object.entries(drawable.nodes)) {
   for (const key of CUSTOM_KEYS) delete node.metadata[key];
 }
 
-const mermaid = drawable.drawMermaid();
+// Annotate each node label with its LLM status.
+// LangGraph emits lines like: \tnode_id(label_text) or \tnode_id(label_text):::class
+const mermaid = drawable.drawMermaid().replace(
+  /(\t)([\w]+)\(([^)]*)\)(:::[\w]+)?/g,
+  (match, tab, nodeId, label, cssClass) => {
+    const meta = savedMeta.get(nodeId);
+    if (!meta || meta.isLlm === undefined) return match;
+    const indicator = meta.isLlm ? "🤖 LLM" : "⚙️ logic";
+    return `${tab}${nodeId}(${label}<br/><small>${indicator}</small>)${cssClass ?? ""}`;
+  }
+);
 
 // --- Nodes section ---
 

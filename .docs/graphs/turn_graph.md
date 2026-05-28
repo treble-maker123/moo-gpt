@@ -8,17 +8,17 @@
 %%{init: {'flowchart': {'curve': 'linear'}}}%%
 graph TD;
 	__start__([<p>__start__</p>]):::first
-	generate_briefing(generate_briefing<hr/><small><em>__interrupt = after</em></small>)
-	parse_intent(parse_intent)
-	validate_action(validate_action)
-	execute_action(execute_action)
-	generate_narrative(generate_narrative<hr/><small><em>__interrupt = after</em></small>)
-	resolve_decision(resolve_decision)
-	generate_journal_entry(generate_journal_entry)
-	surface_decisions(surface_decisions)
-	end_turn(end_turn)
-	update_assistant(update_assistant)
-	reset_turn_state(reset_turn_state)
+	generate_briefing(generate_briefing<hr/><small><em>__interrupt = after</em></small><br/><small>🤖 LLM</small>)
+	parse_intent(parse_intent<br/><small>🤖 LLM</small>)
+	validate_action(validate_action<br/><small>⚙️ logic</small>)
+	execute_action(execute_action<br/><small>⚙️ logic</small>)
+	generate_narrative(generate_narrative<hr/><small><em>__interrupt = after</em></small><br/><small>🤖 LLM</small>)
+	resolve_decision(resolve_decision<br/><small>🤖 LLM</small>)
+	generate_journal_entry(generate_journal_entry<br/><small>🤖 LLM</small>)
+	surface_decisions(surface_decisions<br/><small>⚙️ logic</small>)
+	end_turn(end_turn<br/><small>⚙️ logic</small>)
+	update_assistant(update_assistant<br/><small>⚙️ logic</small>)
+	reset_turn_state(reset_turn_state<br/><small>⚙️ logic</small>)
 	__end__([<p>__end__</p>]):::last
 	__start__ --> generate_briefing;
 	end_turn --> generate_journal_entry;

@@ -60,6 +60,7 @@ function routeAfterResolveDecision(
 const workflow = new StateGraph(GraphAnnotation)
   .addNode("generate_briefing", generateBriefing, {
     metadata: {
+      isLlm: true,
       purpose: "MooGPT delivers the daily briefing at the start of each turn.",
       characteristics:
         "LLM call. Summarizes what changed since the last turn: passive animal productivity ticks, market price shifts, any new Decision objects, and the current action budget. Tone follows moogpt.personality — concise, one or two paragraphs max. Appends the briefing as an AIMessage to messages. Graph interrupts after so the player can read and respond.",
@@ -69,6 +70,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("parse_intent", parseIntent, {
     metadata: {
+      isLlm: true,
       purpose:
         "Convert the latest player message into a structured PlayerIntent.",
       characteristics:
@@ -79,6 +81,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("validate_action", validateAction, {
     metadata: {
+      isLlm: false,
       purpose:
         "Check whether the parsed GameAction is legal given current game state.",
       characteristics:
@@ -89,6 +92,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("execute_action", executeAction, {
     metadata: {
+      isLlm: false,
       purpose: "Apply the validated GameAction to gameState.",
       characteristics:
         "Pure TypeScript domain logic (src/game/actions.ts). Decrements actionsRemaining, modifies animals/market/gold/reputation. Appends a StateDelta to appliedDeltas for generate_narrative and generate_journal_entry to reference. Sets shouldEndTurn = true when actionsRemaining hits 0.",
@@ -99,6 +103,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("generate_narrative", generateNarrative, {
     metadata: {
+      isLlm: true,
       purpose: "MooGPT writes an in-character response to the player.",
       characteristics:
         "LLM call. Tone is determined by moogpt.personality and moogpt.trust. On the success path, receives appliedDeltas to mention specific outcomes. On the error path, receives validationError to refuse warmly. May optionally present a pending Decision — when it does, sets pendingDecisionId so the next player message routes through resolve_decision. Appends an AIMessage to messages. Graph interrupts after.",
@@ -110,6 +115,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("resolve_decision", resolveDecision, {
     metadata: {
+      isLlm: true,
       purpose:
         "Interpret the player's response in the context of a presented decision.",
       characteristics:
@@ -121,6 +127,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("generate_journal_entry", generateJournalEntry, {
     metadata: {
+      isLlm: true,
       purpose: "Write the turn's JournalEntry at end-of-turn.",
       characteristics:
         "LLM call — narrative prose. Runs only at end-of-turn as part of the parallel fan-out after end_turn. Produces title, body, and mood summarising what happened across the whole turn.",
@@ -130,6 +137,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("surface_decisions", surfaceDecisions, {
     metadata: {
+      isLlm: false,
       purpose:
         "Generate new pending Decision objects based on current game state.",
       characteristics:
@@ -140,6 +148,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("end_turn", endTurn, {
     metadata: {
+      isLlm: false,
       purpose:
         "Advance the turn counter and commit end-of-day state mutations.",
       characteristics:
@@ -151,6 +160,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("update_assistant", updateAssistant, {
     metadata: {
+      isLlm: false,
       purpose:
         "Apply accumulated trust deltas and re-derive MooGPT's personality.",
       characteristics:
@@ -163,6 +173,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
   .addNode("reset_turn_state", resetTurnState, {
     metadata: {
+      isLlm: false,
       purpose:
         "Clear all turn-scoped state so the graph can terminate cleanly.",
       characteristics:
