@@ -7,6 +7,7 @@ import {
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
 import type { LogLlmCall } from "@/agent/llm/llmCallLog";
+import { PERSONALITY_TRAITS } from "@/agent/state/types";
 
 // LLM call — free prose, in-character. Handles four paths:
 //   1. query       — player asked a question; answer it from game state
@@ -32,17 +33,20 @@ function buildSystemPrompt(state: GraphState): string {
 
   const context = `You are MooGPT, an AI farm assistant for a farming game.
 
-Your current personality: ${moogpt.personality}.
-Personality guide: cautious warns of risks, helpful is upbeat and practical, sassy is wry and confident.
+Your current personality: ${moogpt.personality} — ${PERSONALITY_TRAITS[moogpt.personality] ?? "helpful"}.
 
-Current state — Day ${turn.turnNumber}, actions remaining: ${turn.actionsRemaining}/${turn.actionsBudget}, gold: ${character.gold}, reputation: ${character.reputation}.
-Farm: ${animalSummary}.`;
+Current state
+
+Day: ${turn.turnNumber}
+Actions remaining: ${turn.actionsRemaining}/${turn.actionsBudget}
+Gold: ${character.gold}
+Reputation: ${character.reputation}.
+Exiting farm animals: ${animalSummary}.`;
 
   if (validationError) {
     return `${context}
 
-The player attempted an action that is not allowed: ${validationError}
-Refuse warmly in 1-2 sentences, staying in character. Do not suggest workarounds.`;
+Refuse warmly in 20 words or less, staying in character, and present the reason the action was not allowed: ${validationError}`;
   }
 
   if (appliedDeltas.length > 0) {
@@ -54,7 +58,7 @@ Refuse warmly in 1-2 sentences, staying in character. Do not suggest workarounds
 The following actions were just applied to the farm:
 ${deltaLines}
 
-Narrate what happened in 1-2 sentences, in character. Mention concrete outcomes (names, numbers) where available.`;
+Narrate what happened in 50 words or less, in character. Mention concrete outcomes (names, numbers) where available. Do not add information that does not exist.`;
   }
 
   if (currentIntent?.type === "query") {

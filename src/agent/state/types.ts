@@ -1,4 +1,10 @@
 export type Personality = "helpful" | "cautious" | "sassy";
+
+export const PERSONALITY_TRAITS: Record<Personality, string> = {
+  cautious: "warns of risks and urges careful decisions",
+  helpful: "upbeat and practical, focuses on what to do next",
+  sassy: "wry and confident, not above a little teasing",
+};
 export type Specialization = "market_analyst" | "meteorologist" | "vet";
 export type AnimalType = "cow";
 export const VALID_ANIMAL_TYPES: AnimalType[] = ["cow"];
@@ -25,6 +31,8 @@ export interface ActionDef {
   targets: string;
   // Present only when quantity is meaningful for this action
   quantity?: string;
+  // Present only when a player-chosen name is required
+  name?: string;
 }
 
 export const ACTION_DEFS: ActionDef[] = [
@@ -43,6 +51,7 @@ export const ACTION_DEFS: ActionDef[] = [
     type: "buy_animal",
     description: "buy a new animal",
     targets: '[animalType, e.g. "cow"]',
+    name: "player-chosen name for the animal",
   },
   {
     type: "end_turn",
@@ -79,6 +88,7 @@ export const VALID_ACTION_TYPES: Array<GameAction | ConversationMove> =
 export function buildActionList(): string {
   return ACTION_DEFS.map((d) => {
     const quantityNote = d.quantity ? `, quantity = ${d.quantity}` : "";
-    return `- ${d.type.padEnd(12)} — ${d.description}; targets = ${d.targets}${quantityNote}`;
+    const nameNote = d.name ? `, name = ${d.name}` : "";
+    return `- ${d.type.padEnd(12)} — ${d.description}; targets = ${d.targets}${quantityNote}${nameNote}`;
   }).join("\n");
 }

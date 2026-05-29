@@ -1,5 +1,4 @@
 import type { GraphState, GraphUpdate } from "@/agent/state";
-import type { AnimalType, ProductType } from "@/agent/state/types";
 import { VALID_ANIMAL_TYPES, VALID_PRODUCT_TYPES } from "@/agent/state/types";
 
 // Pure TS — no LLM. Checks that the parsed GameAction is legal given current
@@ -19,7 +18,7 @@ export function validateAction(state: GraphState): GraphUpdate {
     return fail("No action to validate.");
   }
 
-  const { type, targets, quantity } = currentIntent;
+  const { type } = currentIntent;
 
   // TODO: this shouldn't happen because of graph routing
   // leaving it here for now, will need to clean it up
@@ -32,7 +31,7 @@ export function validateAction(state: GraphState): GraphUpdate {
   }
 
   if (type === "feed_animal") {
-    const animalId = targets[0];
+    const animalId = currentIntent.targets[0];
     if (!animalId) {
       return fail("feed_animal requires a target animal ID.");
     }
@@ -40,26 +39,33 @@ export function validateAction(state: GraphState): GraphUpdate {
     if (!exists) {
       return fail(`Animal "${animalId}" not found on your farm.`);
     }
+    const hay = state.gameState.farm.items.find((it) => it.type === "hay");
+    if (!hay || hay.quantity < 1) {
+      return fail("You don't have any hay to feed with.");
+    }
   }
 
   if (type === "sell_product") {
-    const productType = targets[0] as ProductType;
+    const productType = currentIntent.targets[0];
     if (!productType || !VALID_PRODUCT_TYPES.includes(productType)) {
       return fail(
         `Invalid product type. Valid types: ${VALID_PRODUCT_TYPES.join(", ")}.`,
       );
     }
-    if (!quantity || quantity <= 0) {
+    if (currentIntent.quantity <= 0) {
       return fail("sell_product requires a positive quantity.");
     }
   }
 
   if (type === "buy_animal") {
-    const animalType = targets[0] as AnimalType;
+    const animalType = currentIntent.targets[0];
     if (!animalType || !VALID_ANIMAL_TYPES.includes(animalType)) {
       return fail(
         `Invalid animal type. Valid types: ${VALID_ANIMAL_TYPES.join(", ")}.`,
       );
+    }
+    if (!currentIntent.name) {
+      return fail("New animal needs a name!");
     }
     const currentCount = state.gameState.farm.animals.filter(
       (a) => a.type === animalType,

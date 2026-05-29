@@ -1,11 +1,12 @@
-import type { ConversationMove, GameAction } from "@/agent/state/types";
+import type { AnimalType, GameAction, ProductType } from "@/agent/state/types";
 
-export interface PlayerIntent {
-  type: GameAction | ConversationMove;
-  targets: string[]; // animal IDs, product types, etc.
-  quantity?: number;
-  rawText: string;
-}
+export type PlayerIntent =
+  | { type: "buy_animal"; targets: [AnimalType]; name: string; rawText: string }
+  | { type: "feed_animal"; targets: [string]; rawText: string }
+  | { type: "sell_product"; targets: [ProductType]; quantity: number; rawText: string }
+  | { type: "end_turn"; targets: []; rawText: string }
+  | { type: "query"; targets: []; rawText: string }
+  | { type: "clarify"; targets: []; rawText: string };
 
 export interface StateDelta {
   type: GameAction;

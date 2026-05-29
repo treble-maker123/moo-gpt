@@ -16,31 +16,34 @@ export interface ChatMessage {
   text: string;
 }
 
-const GAME_STATE_KEY = "moogpt:gameState";
+// No game saving/loading for now — always start fresh. Will bring back later.
+// const GAME_STATE_KEY = "moogpt:gameState";
 
-function loadSavedGameState(): GameState | null {
-  try {
-    const raw = localStorage.getItem(GAME_STATE_KEY);
-    if (raw) return JSON.parse(raw) as GameState;
-  } catch (e) {
-    console.warn("[gameStore] failed to load game state:", e);
-  }
-  return null;
-}
+// function loadSavedGameState(): GameState | null {
+//   try {
+//     const raw = localStorage.getItem(GAME_STATE_KEY);
+//     if (raw) return JSON.parse(raw) as GameState;
+//   } catch (e) {
+//     console.warn("[gameStore] failed to load game state:", e);
+//   }
+//   return null;
+// }
 
-function saveGameState(state: GameState) {
-  try {
-    localStorage.setItem(GAME_STATE_KEY, JSON.stringify(state));
-  } catch (e) {
-    console.warn("[gameStore] failed to save game state:", e);
-  }
-}
+// function saveGameState(state: GameState) {
+//   try {
+//     localStorage.setItem(GAME_STATE_KEY, JSON.stringify(state));
+//   } catch (e) {
+//     console.warn("[gameStore] failed to save game state:", e);
+//   }
+// }
 
 function initGameState(): { gameState: GameState; gameStateSource: "new" | "loaded" } {
-  const saved = loadSavedGameState();
-  return saved
-    ? { gameState: saved, gameStateSource: "loaded" }
-    : { gameState: createNewGameState(), gameStateSource: "new" };
+  // No save/load for now — restore the lines below when bringing back persistence.
+  // const saved = loadSavedGameState();
+  // return saved
+  //   ? { gameState: saved, gameStateSource: "loaded" }
+  //   : { gameState: createNewGameState(), gameStateSource: "new" };
+  return { gameState: createNewGameState(), gameStateSource: "new" };
 }
 
 function toDisplayMessages(rawMessages: unknown[]): ChatMessage[] {
@@ -84,7 +87,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   resetGame() {
-    localStorage.removeItem(GAME_STATE_KEY);
+    // localStorage.removeItem(GAME_STATE_KEY); // no saving for now, will bring back later
     set({
       phase: "user_turn",
       messages: [],
@@ -153,7 +156,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
       const graphState = await graph.getState(config);
       if (graphState.next.length === 0) {
-        saveGameState(finalGameState);
+        // saveGameState(finalGameState); // no saving for now, will bring back later
         set({ phase: "game_over" });
       }
     } catch (err) {

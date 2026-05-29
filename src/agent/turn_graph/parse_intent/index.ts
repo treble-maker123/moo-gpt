@@ -5,6 +5,7 @@ import type { AppLLM } from "@/agent/llm";
 import { isMooMode } from "@/agent/llm";
 import type { LogLlmCall } from "@/agent/llm/llmCallLog";
 import type { PlayerIntent } from "@/agent/state/ephemeralState";
+import type { AnimalType, ProductType } from "@/agent/state/types";
 import { VALID_ACTION_TYPES, buildActionList } from "@/agent/state/types";
 
 function buildPrompt(state: GraphState): string {
@@ -29,8 +30,16 @@ ${buildActionList()}
 Current animals: ${animals}
 Available products: ${products}
 
-Reply with ONLY a JSON object, no markdown fences, no explanation:
-{"type":"<type>","targets":["..."],"quantity":<number or null>,"rawText":"<player exact message>"}`;
+Reply with ONLY a JSON object matching the action type, no markdown fences, no explanation.
+For buy_animal, set "name" to the exact name the player stated, or "" if they did not provide one. Do NOT invent a name.
+Examples:
+  buy_animal (name given):    {"type":"buy_animal","targets":["cow"],"name":"Bessie","rawText":"..."}
+  buy_animal (no name given): {"type":"buy_animal","targets":["cow"],"name":"","rawText":"..."}
+  feed_animal:  {"type":"feed_animal","targets":["<animalId>"],"rawText":"..."}
+  sell_product: {"type":"sell_product","targets":["milk"],"quantity":3,"rawText":"..."}
+  end_turn:     {"type":"end_turn","targets":[],"rawText":"..."}
+  query:        {"type":"query","targets":[],"rawText":"..."}
+  clarify:      {"type":"clarify","targets":[],"rawText":"..."}`;
 }
 
 function parseResponse(raw: string, rawText: string): PlayerIntent {
@@ -39,12 +48,21 @@ function parseResponse(raw: string, rawText: string): PlayerIntent {
     if (!match) throw new Error("no JSON");
     const parsed = JSON.parse(match[0]);
     const type = VALID_ACTION_TYPES.includes(parsed.type) ? parsed.type : "query";
-    return {
-      type,
-      targets: Array.isArray(parsed.targets) ? parsed.targets.map(String) : [],
-      quantity: typeof parsed.quantity === "number" ? parsed.quantity : undefined,
-      rawText,
-    };
+    const targets = Array.isArray(parsed.targets) ? parsed.targets.map(String) : [];
+
+    if (type === "buy_animal") {
+      return { type, targets: [targets[0] as AnimalType], name: parsed.name ?? "", rawText };
+    }
+    if (type === "feed_animal") {
+      return { type, targets: [targets[0] ?? ""], rawText };
+    }
+    if (type === "sell_product") {
+      return { type, targets: [targets[0] as ProductType], quantity: typeof parsed.quantity === "number" ? parsed.quantity : 0, rawText };
+    }
+    if (type === "end_turn") {
+      return { type, targets: [], rawText };
+    }
+    return { type: type as "query" | "clarify", targets: [], rawText };
   } catch {
     return { type: "query", targets: [], rawText };
   }

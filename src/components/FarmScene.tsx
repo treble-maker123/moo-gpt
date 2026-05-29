@@ -56,12 +56,17 @@ export function FarmScene({ state }: FarmSceneProps) {
   const [hovered, setHovered] = useState<{ index: number; x: number; y: number } | null>(null);
   const hoveredRef = useRef<{ container: Container } | null>(null);
 
+  const appRef = useRef<Application | null>(null);
+  const cowLayerRef = useRef<import("pixi.js").Container | null>(null);
+  const cowsRef = useRef<CowAnim[]>([]);
+
+  const cowCount = state.farm.animals.filter(a => a.type === "cow").length;
+
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const app = new Application();
-    const cows: CowAnim[] = [];
     let alive = true;
     let initialized = false;
 
@@ -89,10 +94,15 @@ export function FarmScene({ state }: FarmSceneProps) {
       buildBuildings(app, W, H);
       buildFence(app, W, H);
       buildFarmPlots(app, W, H);
-      buildCows(app, W, H, stateRef, cows, setHovered, hoveredRef);
+
+      const { layer, cows } = buildCows(W, H, stateRef, setHovered, hoveredRef);
+      app.stage.addChild(layer);
+      appRef.current = app;
+      cowLayerRef.current = layer;
+      cowsRef.current = cows;
 
       app.ticker.add((ticker) => {
-        for (const cow of cows) {
+        for (const cow of cowsRef.current) {
           cow.container.x = cow.baseX + Math.sin(cow.phase) * 28;
           cow.container.y = cow.baseY + Math.cos(cow.phase * 0.6) * 7;
           cow.container.scale.x = Math.cos(cow.phase) > 0 ? 1 : -1;
@@ -109,9 +119,32 @@ export function FarmScene({ state }: FarmSceneProps) {
     return () => {
       alive = false;
       setHovered(null);
+      appRef.current = null;
+      cowLayerRef.current = null;
+      cowsRef.current = [];
       if (initialized) app.destroy(true);
     };
   }, []);
+
+  // Rebuild just the cow layer whenever the cow count changes
+  useEffect(() => {
+    const app = appRef.current;
+    if (!app) return;
+    const W = app.screen.width;
+    const H = app.screen.height;
+
+    if (cowLayerRef.current) {
+      app.stage.removeChild(cowLayerRef.current);
+      cowLayerRef.current.destroy({ children: true });
+    }
+    setHovered(null);
+    hoveredRef.current = null;
+
+    const { layer, cows } = buildCows(W, H, stateRef, setHovered, hoveredRef);
+    app.stage.addChild(layer);
+    cowLayerRef.current = layer;
+    cowsRef.current = cows;
+  }, [cowCount]);
 
   // Read animal from the *current* state so it always matches HUD / debug panel
   const cowAnimals = stateRef.current.farm.animals.filter(a => a.type === "cow");
@@ -229,15 +262,14 @@ function buildFarmPlots(app: Application, W: number, H: number) {
 }
 
 function buildCows(
-  app: Application,
   W: number,
   H: number,
   stateRef: React.RefObject<GameState>,
-  cows: CowAnim[],
   setHovered: (v: { index: number; x: number; y: number } | null) => void,
   hoveredRef: React.MutableRefObject<{ container: Container } | null>,
-) {
-  const cowLayer = new Container();
+): { layer: Container; cows: CowAnim[] } {
+  const layer = new Container();
+  const cows: CowAnim[] = [];
   const count = Math.min(stateRef.current!.farm.animals.filter(a => a.type === "cow").length, 8);
 
   for (let i = 0; i < count; i++) {
@@ -271,9 +303,9 @@ function buildCows(
       setHovered(null);
     });
 
-    cowLayer.addChild(c);
+    layer.addChild(c);
     cows.push({ container: c, baseX, baseY, phase: (i / Math.max(count, 1)) * Math.PI * 2 });
   }
 
-  app.stage.addChild(cowLayer);
+  return { layer, cows };
 }
