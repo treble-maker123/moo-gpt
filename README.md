@@ -17,7 +17,7 @@ No more grinding. No more button mashing. Just you, your words, and an AI cow th
 1. Launch the game at https://treble-maker123.github.io/moo-gpt/,
 2. Follow the instructions and have fun!
 
- <img src="assets/v0.0.1.png" height="500" />
+ <img src="assets/v0.3.1.png" height="500" />
 
 ## FAQs
 
