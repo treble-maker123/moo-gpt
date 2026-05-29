@@ -97,6 +97,9 @@ export function OllamaInstructions() {
       <li>
         <strong>Update the API URL</strong> below if Ollama is set up differently.
       </li>
+      <li>
+        <strong>Allow browser access</strong> — if your browser asks whether this page can access other apps and services on this device (Ollama is one such service), click <strong>Allow</strong>.
+      </li>
     </ol>
   );
 }
