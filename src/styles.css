@@ -418,6 +418,40 @@ button {
   font-size: 0.85rem;
 }
 
+.setup-code-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.setup-code-row .setup-code {
+  margin-top: 0;
+  flex: 1;
+}
+
+.setup-code-inline-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.setup-copy-btn {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  background: var(--panel-dark, #1a0d00);
+  border: 1px solid var(--panel-border);
+  color: var(--txt-bright);
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.setup-copy-btn:hover {
+  background: var(--panel-border);
+}
+
 .setup-input-row {
   display: flex;
   align-items: center;

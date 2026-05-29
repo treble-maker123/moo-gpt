@@ -4,6 +4,20 @@ import type { SetupConfig, StepProps } from "./step";
 
 type CheckState = "idle" | "checking" | "ok" | "error";
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+  return (
+    <button type="button" className="setup-copy-btn" onClick={handleCopy} title="Copy">
+      {copied ? "✓" : "⎘"}
+    </button>
+  );
+}
+
 export async function pingOllama(endpoint: string): Promise<string | null> {
   try {
     const base = new URL(endpoint);
@@ -36,18 +50,52 @@ export function OllamaInstructions() {
         {" "}and install it.
       </li>
       <li>
-        <strong>Pull the model</strong> — quit the Ollama app if it's running (menu bar on Mac, system tray on Windows), then open a terminal and run:
-        <br />
-        <strong>Mac / Linux:</strong>
-        <code className="setup-code">OLLAMA_ORIGINS="https://treble-maker123.github.io" ollama run qwen2.5</code>
-        <strong>Windows (Command Prompt):</strong>
-        <code className="setup-code">set OLLAMA_ORIGINS=https://treble-maker123.github.io && ollama run qwen2.5</code>
+        <strong>Enable cross-origin access</strong> so this page can talk to Ollama:
+        <ul className="setup-instructions-sub">
+          <li>
+            <details>
+              <summary><strong>Mac</strong></summary>
+              Run in a terminal, then restart Ollama:
+              <div className="setup-code-row">
+                <code className="setup-code">launchctl setenv OLLAMA_ORIGINS "https://treble-maker123.github.io"</code>
+                <CopyButton text={`launchctl setenv OLLAMA_ORIGINS "https://treble-maker123.github.io"`} />
+              </div>
+            </details>
+          </li>
+          <li>
+            <details>
+              <summary><strong>Windows</strong></summary>
+              Open <em>System Properties → Environment Variables</em> and add:
+              <div className="setup-code-row">
+                <code className="setup-code">OLLAMA_ORIGINS = https://treble-maker123.github.io</code>
+                <CopyButton text="OLLAMA_ORIGINS = https://treble-maker123.github.io" />
+              </div>
+              Then restart Ollama.
+            </details>
+          </li>
+          <li>
+            <details>
+              <summary><strong>Linux</strong></summary>
+              Run <code className="setup-code-inline">sudo systemctl edit ollama.service</code> and add under <code className="setup-code-inline">[Service]</code>:
+              <div className="setup-code-row">
+                <code className="setup-code">{`Environment="OLLAMA_ORIGINS=https://treble-maker123.github.io"`}</code>
+                <CopyButton text={`Environment="OLLAMA_ORIGINS=https://treble-maker123.github.io"`} />
+              </div>
+              Then run <code className="setup-code-inline">sudo service ollama restart</code>.
+            </details>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <strong>Pull the model</strong> — open a terminal and run:
+        <div className="setup-code-row">
+          <code className="setup-code">ollama run qwen2.5</code>
+          <CopyButton text="ollama run qwen2.5" />
+        </div>
         Wait for the download to finish on first run.
       </li>
       <li>
-        <strong>Enter the API URL</strong> below. The default is{" "}
-        <code className="setup-code-inline">http://localhost:11434</code> — try
-        that first and hit <em>Start Game</em> to verify it's reachable.
+        <strong>Update the API URL</strong> below if Ollama is set up differently.
       </li>
     </ol>
   );

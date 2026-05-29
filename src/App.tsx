@@ -23,7 +23,7 @@ function loadConfig(): SetupConfig {
     const raw = localStorage.getItem(CONFIG_KEY);
     if (raw) return JSON.parse(raw) as SetupConfig;
   } catch {}
-  return { ollamaEndpoint: "", mooMode: false };
+  return { ollamaEndpoint: "http://localhost:11434", mooMode: false };
 }
 
 export default function App() {
