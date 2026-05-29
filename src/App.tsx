@@ -191,6 +191,7 @@ export default function App() {
             </button>
           </div>
 
+          {/* TODO: re-enable Settings button once in-game config changes are supported
           <button
             type="button"
             className="settings-btn"
@@ -198,6 +199,7 @@ export default function App() {
           >
             ⚙ Settings
           </button>
+          */}
         </aside>
       </main>
     </>

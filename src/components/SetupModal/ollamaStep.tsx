@@ -36,8 +36,12 @@ export function OllamaInstructions() {
         {" "}and install it.
       </li>
       <li>
-        <strong>Pull the model</strong> — open a terminal and run:
-        <code className="setup-code">ollama run qwen2.5</code>
+        <strong>Pull the model</strong> — quit the Ollama app if it's running (menu bar on Mac, system tray on Windows), then open a terminal and run:
+        <br />
+        <strong>Mac / Linux:</strong>
+        <code className="setup-code">OLLAMA_ORIGINS="https://treble-maker123.github.io" ollama run qwen2.5</code>
+        <strong>Windows (Command Prompt):</strong>
+        <code className="setup-code">set OLLAMA_ORIGINS=https://treble-maker123.github.io && ollama run qwen2.5</code>
         Wait for the download to finish on first run.
       </li>
       <li>
