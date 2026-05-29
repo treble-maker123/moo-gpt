@@ -1,7 +1,10 @@
 export type Personality = "helpful" | "cautious" | "sassy";
 export type Specialization = "market_analyst" | "meteorologist" | "vet";
 export type AnimalType = "cow";
+export const VALID_ANIMAL_TYPES: AnimalType[] = ["cow"];
+
 export type ProductType = "milk" | "hay";
+export const VALID_PRODUCT_TYPES: ProductType[] = ["milk", "hay"];
 export type Season = "spring" | "summer" | "autumn" | "winter";
 export type Mood = "optimistic" | "concerned" | "neutral" | "excited" | "grim";
 
@@ -25,27 +28,27 @@ export interface ActionDef {
 }
 
 export const ACTION_DEFS: ActionDef[] = [
-  // {
-  //   type: "feed_animal",
-  //   description: "feed an animal on the farm",
-  //   targets: "[animalId]",
-  // },
-  // {
-  //   type: "sell_product",
-  //   description: "sell a product at market",
-  //   targets: "[productType]",
-  //   quantity: "number of units to sell",
-  // },
-  // {
-  //   type: "buy_animal",
-  //   description: "buy a new animal",
-  //   targets: '[animalType, e.g. "cow"]',
-  // },
-  // {
-  //   type: "end_turn",
-  //   description: "end the current day",
-  //   targets: "[]",
-  // },
+  {
+    type: "feed_animal",
+    description: "feed an animal on the farm",
+    targets: "[animalId]",
+  },
+  {
+    type: "sell_product",
+    description: "sell a product at market",
+    targets: "[productType]",
+    quantity: "number of units to sell",
+  },
+  {
+    type: "buy_animal",
+    description: "buy a new animal",
+    targets: '[animalType, e.g. "cow"]',
+  },
+  {
+    type: "end_turn",
+    description: "end the current day",
+    targets: "[]",
+  },
   {
     type: "query",
     description: "player asks a question about farm state — no game state change",

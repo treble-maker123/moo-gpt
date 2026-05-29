@@ -40,9 +40,15 @@ export interface MooGPT {
   specializations: Specialization[];
 }
 
+export interface FarmItem {
+  type: ProductType;
+  quantity: number;
+}
+
 export interface Farm {
   animals: Animal[];
   limits: Record<AnimalType, number>;
+  items: FarmItem[];
 }
 
 export interface Animal {
@@ -111,21 +117,32 @@ export function createNewGameState(): GameState {
       reputation: 60,
     },
     moogpt: {
-      trust: 50,
-      personality: "helpful",
+      trust: 90,
+      personality: "sassy",
       specializations: [],
     },
     farm: {
       animals: (() => {
         const names = ["Cairne", "Baine", "Hamuul", "Magatha"];
         const name = names[Math.floor(Math.random() * names.length)];
-        return [{ id: "cow-1", name, type: "cow" as const, health: 80, productivity: 1, age: 1, mood: 80 }];
+        return [
+          {
+            id: "cow-1",
+            name,
+            type: "cow" as const,
+            health: 80,
+            productivity: 1,
+            age: 1,
+            mood: 80,
+          },
+        ];
       })(),
       limits: { cow: 3 },
+      items: [{ type: "hay", quantity: 3 }],
     },
     market: {
-      milk: 0,
-      hay: 0,
+      milk: 2,
+      hay: 2,
     },
     journalEntries: [],
     decisions: [],

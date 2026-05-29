@@ -125,6 +125,7 @@ const workflow = new StateGraph(GraphAnnotation)
         "ephemeralState.currentIntent (if action follows), ephemeralState.pendingTrustDelta (accumulated)",
     },
   })
+  /* TODO: restore fan-out nodes once implemented
   .addNode("generate_journal_entry", generateJournalEntry, {
     metadata: {
       isLlm: true,
@@ -146,6 +147,7 @@ const workflow = new StateGraph(GraphAnnotation)
       outputs: "gameState.decisions (new decisions appended)",
     },
   })
+  */
   .addNode("end_turn", endTurn, {
     metadata: {
       isLlm: false,
@@ -158,6 +160,7 @@ const workflow = new StateGraph(GraphAnnotation)
         "gameState (turnNumber, actionsRemaining, season, animal ages mutated)",
     },
   })
+  /* TODO: restore fan-out nodes once implemented
   .addNode("update_assistant", updateAssistant, {
     metadata: {
       isLlm: false,
@@ -182,6 +185,7 @@ const workflow = new StateGraph(GraphAnnotation)
       outputs: "ephemeralState (all fields reset)",
     },
   })
+  */
 
   // entry
   .addEdge(START, "generate_briefing")
@@ -210,15 +214,19 @@ const workflow = new StateGraph(GraphAnnotation)
     end_turn: "end_turn",
   })
 
+  // TODO: restore fan-out once implemented
   // end_turn mutates canonical state first (turn number, season, animal ages),
   // then fans out in parallel to the three "next-day prep" nodes.
-  .addEdge("end_turn", "generate_journal_entry")
-  .addEdge("end_turn", "surface_decisions")
-  .addEdge("end_turn", "update_assistant")
+  // .addEdge("end_turn", "generate_journal_entry")
+  // .addEdge("end_turn", "surface_decisions")
+  // .addEdge("end_turn", "update_assistant")
 
   // all three converge at reset_turn_state
-  .addEdge("generate_journal_entry", "reset_turn_state")
-  .addEdge("surface_decisions", "reset_turn_state")
+  // .addEdge("generate_journal_entry", "reset_turn_state")
+  // .addEdge("surface_decisions", "reset_turn_state")
+
+  // graph ends at end_turn for now
+  .addEdge("end_turn", END)
 
   // resolve_decision routes directly — trust delta is accumulated in ephemeralState
   // and applied by update_assistant at end-of-turn only
@@ -228,7 +236,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
 
   // update_assistant runs only at end-of-turn, always converges to reset_turn_state
-  .addEdge("update_assistant", "reset_turn_state")
+  // .addEdge("update_assistant", "reset_turn_state")
 
   // narrative → interrupt → route based on pendingDecisionId
   .addConditionalEdges("generate_narrative", routeAfterInterrupt, {
@@ -237,7 +245,7 @@ const workflow = new StateGraph(GraphAnnotation)
   })
 
   // turn complete
-  .addEdge("reset_turn_state", END);
+  // .addEdge("reset_turn_state", END);
 
 // Compiled once at app load; each turn gets its own thread_id.
 // interruptAfter pauses the graph after these nodes so React can display

@@ -483,6 +483,50 @@ button {
   color: #f0c0ff;
 }
 
+.hud-chip-interactive {
+  pointer-events: auto;
+  cursor: default;
+  position: relative;
+  user-select: none;
+}
+
+.hud-tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 120px;
+  background: rgba(16, 8, 2, 0.95);
+  border: 2px solid var(--hud-border);
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 30;
+  white-space: nowrap;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+
+.hud-tooltip-empty {
+  color: var(--txt-dim);
+  font-size: 0.85rem;
+}
+
+.hud-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 0.9rem;
+}
+
+.hud-tooltip-label {
+  color: var(--txt-normal);
+  text-transform: capitalize;
+}
+
+.hud-tooltip-value {
+  color: var(--hud-text);
+}
+
 /* === DEBUG PANEL === */
 
 .debug-toggle-btn {

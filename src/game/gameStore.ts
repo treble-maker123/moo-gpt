@@ -9,7 +9,7 @@ import type { LlmCallRecord } from "@/agent/llm/llmCallLog";
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-export type GamePhase = "user_turn" | "world_turn";
+export type GamePhase = "user_turn" | "world_turn" | "game_over";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -66,6 +66,7 @@ interface GameStore {
   setLlm: (llm: AppLLM) => void;
   startUserTurn: () => Promise<void>;
   sendMessage: (text: string) => Promise<void>;
+  resetGame: () => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -80,6 +81,19 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   setLlm(llm) {
     set({ llm });
+  },
+
+  resetGame() {
+    localStorage.removeItem(GAME_STATE_KEY);
+    set({
+      phase: "user_turn",
+      messages: [],
+      llmCallLog: [],
+      gameState: createNewGameState(),
+      ephemeralState: createNewEphemeralState(),
+      gameStateSource: "new",
+      threadId: "",
+    });
   },
 
   async startUserTurn() {
@@ -140,12 +154,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const graphState = await graph.getState(config);
       if (graphState.next.length === 0) {
         saveGameState(finalGameState);
-        set({ phase: "world_turn" });
-
-        setTimeout(() => {
-          set({ phase: "user_turn" });
-          get().startUserTurn();
-        }, 500);
+        set({ phase: "game_over" });
       }
     } catch (err) {
       console.error("[gameStore] sendMessage error:", err);

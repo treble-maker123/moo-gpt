@@ -37,9 +37,7 @@ Day ${turn.turnNumber}.
 Action budgets remaining: ${turn.actionsRemaining}/${turn.actionsBudget}.
 Gold: ${character.gold}. 
 Reputation: ${character.reputation}.
-Farm: ${animalSummary}.
-
-Deliver a concise daily briefing in 50 words or less for the player, using only provided facts and do not provide any additional information, and ask the player what actions they would like to take next`;
+Farm: ${animalSummary}.`;
 }
 
 export async function generateBriefing(
@@ -56,7 +54,11 @@ export async function generateBriefing(
   const systemPrompt = buildBriefingPrompt(state);
   const promptMessages = [
     { role: "system", content: systemPrompt },
-    { role: "human", content: "Give me today's briefing." },
+    {
+      role: "human",
+      content:
+        "Deliver a concise daily briefing in 50 words or less for the player, using only provided facts and do not provide any additional information, and ask the player what actions they would like to take next.",
+    },
   ] as const;
   const response = await llm.invoke([
     new SystemMessage(promptMessages[0].content),

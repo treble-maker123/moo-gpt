@@ -30,10 +30,11 @@ export default function App() {
   const [showSetup, setShowSetup] = useState(true);
   const [config, setConfig] = useState<SetupConfig>(loadConfig);
   const [input, setInput] = useState("");
+  const [itemsHovered, setItemsHovered] = useState(false);
 
   const llm = useMemo(() => createLlm(config), [config]);
 
-  const { phase, messages, gameState, ephemeralState, llmCallLog, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage } =
+  const { phase, messages, gameState, ephemeralState, llmCallLog, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage, resetGame } =
     useGameStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -51,7 +52,7 @@ export default function App() {
 
   // Start the first user turn once setup is dismissed
   useEffect(() => {
-    if (!showSetup) startUserTurn();
+    if (!showSetup && phase !== "game_over") startUserTurn();
   }, [showSetup, startUserTurn]);
 
   // Auto-scroll to latest message
@@ -73,6 +74,33 @@ export default function App() {
       {showSetup && (
         <SetupModal initialConfig={config} onComplete={handleSetupComplete} />
       )}
+      {phase === "game_over" && (
+        <div className="setup-overlay">
+          <div className="setup-modal">
+            <div className="setup-header">
+              <h2 className="setup-title">Thanks for playing!</h2>
+            </div>
+            <div className="setup-body">
+              <div className="setup-step">
+                <p className="setup-step-description">
+                  MooGPT currently only supports one turn. More turns, events,
+                  and farm upgrades are coming soon. 🐄
+                </p>
+              </div>
+            </div>
+            <div className="setup-footer">
+              <div className="setup-dots" />
+              <button
+                type="button"
+                className="setup-btn setup-btn-primary"
+                onClick={() => { resetGame(); startUserTurn(); }}
+              >
+                Start Over
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <main className="app-shell">
         {/* ── Game world ─────────────────────────────────────────── */}
         <section className="game-scene" aria-label="Game world">
@@ -91,6 +119,27 @@ export default function App() {
               <div className="hud-chip">💰 {gameState.character.gold}G</div>
               <div className="hud-chip">💪🏻 {gameState.turn.actionsRemaining}/{gameState.turn.actionsBudget}</div>
               <div className="hud-chip">🐄 {gameState.farm.animals.filter(a => a.type === "cow").length}/{gameState.farm.limits.cow}</div>
+              <div
+                className="hud-chip hud-chip-interactive"
+                onMouseEnter={() => setItemsHovered(true)}
+                onMouseLeave={() => setItemsHovered(false)}
+              >
+                🎒 {gameState.farm.items.reduce((s, it) => s + it.quantity, 0)}
+                {itemsHovered && (
+                  <div className="hud-tooltip">
+                    {gameState.farm.items.length === 0 ? (
+                      <div className="hud-tooltip-empty">No items</div>
+                    ) : (
+                      gameState.farm.items.map(it => (
+                        <div key={it.type} className="hud-tooltip-row">
+                          <span className="hud-tooltip-label">{it.type}</span>
+                          <span className="hud-tooltip-value">{it.quantity}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
