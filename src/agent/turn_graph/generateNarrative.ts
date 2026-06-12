@@ -6,8 +6,7 @@ import {
 } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
-import type { LogLlmCall } from "@/agent/llm/llmCallLog";
-import { PERSONALITY_TRAITS } from "@/agent/state/types";
+import { PERSONALITY_TRAITS } from "@/engine/types";
 
 // LLM call — free prose, in-character. Handles four paths:
 //   1. query       — player asked a question; answer it from game state
@@ -88,7 +87,17 @@ export async function generateNarrative(
     throw new Error(
       "No LLM in configurable — pass { configurable: { llm } } when invoking the graph.",
     );
-  const logLlmCall = config?.configurable?.logLlmCall as LogLlmCall | undefined;
+  const logger = config?.configurable?.logger as
+    | {
+        append: (record: {
+          id: string;
+          node: string;
+          timestamp: number;
+          messages: Array<{ role: string; content: string }>;
+          response: string;
+        }) => void;
+      }
+    | undefined;
 
   const systemContent = buildSystemPrompt(state);
   const rawText = state.ephemeralState.currentIntent?.rawText ?? "(no message)";
@@ -100,7 +109,7 @@ export async function generateNarrative(
 
   const text = typeof response.content === "string" ? response.content : "Moo.";
 
-  logLlmCall?.({
+  logger?.append({
     id: crypto.randomUUID(),
     node: "generateNarrative",
     timestamp: Date.now(),

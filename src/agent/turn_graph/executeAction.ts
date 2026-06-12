@@ -1,6 +1,5 @@
 import type { GraphState, GraphUpdate } from "@/agent/state";
-import type { Animal } from "@/agent/state/gameState";
-import type { AnimalType } from "@/agent/state/types";
+import type { Animal, AnimalType } from "@/engine/types";
 
 const ANIMAL_COST: Record<AnimalType, number> = { cow: 10 };
 

@@ -3,7 +3,7 @@ import { FarmScene } from "@/components/FarmScene";
 import { SetupModal } from "@/components/SetupModal";
 import type { SetupConfig } from "@/components/SetupModal";
 import { createLlm, isMooMode } from "@/agent/llm";
-import { useGameStore } from "@/game/gameStore";
+import { useGameStore } from "@/store";
 import { DEBUG_MODE } from "@/utils/debugMode";
 import { DebugPanel } from "@/components/DebugPanel";
 
@@ -34,15 +34,15 @@ export default function App() {
 
   const llm = useMemo(() => createLlm(config), [config]);
 
-  const { phase, messages, gameState, ephemeralState, llmCallLog, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage, resetGame } =
+  const { phase, messages, gameState, ephemeralState, runtime, isLoading, gameStateSource, configure, startTurn, sendMessage, resetGame, gameOver } =
     useGameStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Keep the store's llm in sync with config changes
   useEffect(() => {
-    setLlm(llm);
-  }, [llm, setLlm]);
+    configure({ llm });
+  }, [llm, configure]);
 
   function handleSetupComplete(newConfig: SetupConfig) {
     localStorage.setItem(CONFIG_KEY, JSON.stringify(newConfig));
@@ -52,8 +52,8 @@ export default function App() {
 
   // Start the first user turn once setup is dismissed
   useEffect(() => {
-    if (!showSetup && phase !== "game_over") startUserTurn();
-  }, [showSetup, startUserTurn]);
+    if (!showSetup && !gameOver) startTurn();
+  }, [showSetup, gameOver, startTurn]);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function App() {
       {showSetup && (
         <SetupModal initialConfig={config} onComplete={handleSetupComplete} />
       )}
-      {phase === "game_over" && (
+      {gameOver && (
         <div className="setup-overlay">
           <div className="setup-modal">
             <div className="setup-header">
@@ -93,7 +93,7 @@ export default function App() {
               <button
                 type="button"
                 className="setup-btn setup-btn-primary"
-                onClick={() => { resetGame(); startUserTurn(); }}
+                onClick={() => { resetGame(); }}
               >
                 Start Over
               </button>
@@ -106,7 +106,14 @@ export default function App() {
         <section className="game-scene" aria-label="Game world">
           <FarmScene state={gameState} />
 
-          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} llmCallLog={llmCallLog} gameStateSource={gameStateSource} />}
+          {DEBUG_MODE && (
+            <DebugPanel
+              gameState={gameState}
+              ephemeralState={ephemeralState}
+              llmCallLog={runtime.logger.entries}
+              gameStateSource={gameStateSource}
+            />
+          )}
 
           <div className="hud" aria-hidden="true">
             <div className="hud-group">
@@ -179,13 +186,13 @@ export default function App() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !inputDisabled && handleSend()}
-              disabled={inputDisabled}
+              disabled={inputDisabled || gameOver}
             />
             <button
               type="button"
               className="chat-send"
               onClick={handleSend}
-              disabled={inputDisabled}
+              disabled={inputDisabled || gameOver}
             >
               ▶
             </button>

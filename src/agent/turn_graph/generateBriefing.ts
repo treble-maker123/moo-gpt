@@ -6,7 +6,7 @@ import {
 } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
-import type { LogLlmCall } from "@/agent/llm/llmCallLog";
+import { PERSONALITY_TRAITS } from "@/engine/types";
 
 function buildBriefingPrompt(state: GraphState): string {
   const { gameState } = state;
@@ -49,7 +49,17 @@ export async function generateBriefing(
     throw new Error(
       "No LLM in configurable — pass { configurable: { llm } } when invoking the graph.",
     );
-  const logLlmCall = config?.configurable?.logLlmCall as LogLlmCall | undefined;
+  const logger = config?.configurable?.logger as
+    | {
+        append: (record: {
+          id: string;
+          node: string;
+          timestamp: number;
+          messages: Array<{ role: string; content: string }>;
+          response: string;
+        }) => void;
+      }
+    | undefined;
 
   const systemPrompt = buildBriefingPrompt(state);
   const promptMessages = [
@@ -67,7 +77,7 @@ export async function generateBriefing(
 
   const text = typeof response.content === "string" ? response.content : "Moo.";
 
-  logLlmCall?.({
+  logger?.append({
     id: crypto.randomUUID(),
     node: "generateBriefing",
     timestamp: Date.now(),
