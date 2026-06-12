@@ -2,6 +2,10 @@
 
 These conventions keep agent work predictable and easy to hand off.
 
+## Project Context
+
+This is a solo project. Skip team-facing conventions (PR review gates, design approval workflows, co-author attribution). GitHub issues are used for tracking, not coordination.
+
 ## Working Style
 
 - Make the smallest change that satisfies the request.
@@ -26,6 +30,14 @@ These conventions keep agent work predictable and easy to hand off.
 - Prefer absolute imports with the `@` alias for files under `src/`.
 - Commit messages and PR descriptions must not include co-author information or agent attribution.
 - Repeat: do not add co-author trailers, agent signatures, or generated-by attribution in commit messages or PR descriptions.
+
+## Design Docs
+
+See [design-docs.md](design-docs.md) for the full convention. Short version:
+
+- Files go in `.docs/designs/` named `YYYY-MM-DD-slug.md`.
+- No frontmatter — no date, no author, no status field.
+- Required sections: Problem, Goals, Proposed Design, Migration Plan (if applicable), Open Questions.
 
 ## Verification
 
