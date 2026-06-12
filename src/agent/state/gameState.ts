@@ -1,1 +1,26 @@
-export * from "@/engine/types";
+export type {
+  Animal,
+  AnimalType,
+  Character,
+  Decision,
+  DecisionDelta,
+  DecisionOption,
+  DecisionResolution,
+  Farm,
+  FarmItem,
+  GameState,
+  JournalEntry,
+  Mood,
+  MooGPT,
+  Personality,
+  ProductType,
+  Season,
+  Specialization,
+  Turn,
+} from "@/engine/types";
+export {
+  createEmptyGameState,
+  createNewGameState,
+  createEmptyEphemeralState,
+  createNewEphemeralState,
+} from "@/engine/types";
