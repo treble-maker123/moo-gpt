@@ -33,4 +33,7 @@ Start here before making changes in this repository.
 
 - `src/` contains the Vite/React application entry point and local app state.
 - Absolute imports should use the `@` alias for files under `src/`.
+- `src/engine/` owns pure game rules and shared domain types.
+- `src/store/` owns the Zustand store and runtime orchestration.
+- `src/agent/` owns LangGraph integration and LLM-facing code.
 - The current UI is intentionally bare while the scaffold is iterated on.

@@ -16,7 +16,8 @@ This repository is a lightweight Vite/React app with supporting docs and reusabl
 - `src/main.tsx` is the Vite entry point that mounts React.
 - `src/App.tsx` is the top-level application shell for now.
 - `src/agent/` owns LangGraph and other agent-facing integration code.
-- `src/game/` owns game domain state, rules, and domain-specific helpers. (transitional — migrating to `src/engine/` and `src/store/`; see Target Architecture)
+- `src/engine/` owns game domain state, rules, and pure TypeScript helpers.
+- `src/store/` owns Zustand orchestration and bridges runtime events back to React.
 - `src/components/` owns reusable UI components.
 - `src/lib/` is reserved for shared utilities that do not belong to one domain.
 
@@ -33,10 +34,8 @@ UI (src/components/)
 
 - **Game Engine** (`src/engine/`): pure TypeScript, no LLM or React deps. Owns all game rules and domain types.
 - **Agent Layer** (`src/agent/`): LangGraph implementation behind an `AgentRuntime` interface. Calls the engine; never touches React.
-- **Store** (`src/store/`): orchestration layer. Holds live game state between turns, wires agent events back to React, exposes a command interface (`configure`, `startTurn`, `sendMessage`, `resetGame`) to the UI. No LangGraph imports.
+- **Store** (`src/store/`): orchestration layer. Holds live game state between turns, wires runtime events back to React, exposes a command interface (`setLlm`, `startUserTurn`, `sendMessage`, `resetGame`) to the UI. No LangGraph imports.
 - **UI** (`src/components/`): reads from the store and engine types only. Exception: `DebugPanel` may access `runtime.logger` directly to display LLM call logs — it is the only component permitted to reach into the agent layer.
-
-Until the migration is complete, `src/game/gameStore.ts` still couples the store to LangGraph directly.
 
 ## Intended Structure
 
