@@ -1,5 +1,5 @@
 import type { GraphState, GraphUpdate } from "@/agent/state";
-import { VALID_ANIMAL_TYPES, VALID_PRODUCT_TYPES } from "@/agent/state/types";
+import { VALID_ANIMAL_TYPES, VALID_PRODUCT_TYPES } from "@/engine";
 
 // Pure TS — no LLM. Checks that the parsed GameAction is legal given current
 // game state. Sets ephemeralState.validationError on failure.

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Application, Graphics, Container } from "pixi.js";
-import type { GameState } from "@/agent/state";
+import type { GameState } from "@/engine";
 
 // Autumn palette — matches CSS vars
 const PAL = {

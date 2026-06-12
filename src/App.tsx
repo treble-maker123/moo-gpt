@@ -3,7 +3,7 @@ import { FarmScene } from "@/components/FarmScene";
 import { SetupModal } from "@/components/SetupModal";
 import type { SetupConfig } from "@/components/SetupModal";
 import { createLlm, isMooMode } from "@/agent/llm";
-import { useGameStore } from "@/game/gameStore";
+import { useGameStore } from "@/store";
 import { DEBUG_MODE } from "@/utils/debugMode";
 import { DebugPanel } from "@/components/DebugPanel";
 
@@ -34,7 +34,7 @@ export default function App() {
 
   const llm = useMemo(() => createLlm(config), [config]);
 
-  const { phase, messages, gameState, ephemeralState, llmCallLog, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage, resetGame } =
+  const { phase, messages, gameState, ephemeralState, runtime, isLoading, gameStateSource, setLlm, startUserTurn, sendMessage, resetGame } =
     useGameStore();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -106,7 +106,14 @@ export default function App() {
         <section className="game-scene" aria-label="Game world">
           <FarmScene state={gameState} />
 
-          {DEBUG_MODE && <DebugPanel gameState={gameState} ephemeralState={ephemeralState} llmCallLog={llmCallLog} gameStateSource={gameStateSource} />}
+          {DEBUG_MODE && (
+            <DebugPanel
+              gameState={gameState}
+              ephemeralState={ephemeralState}
+              llmCallLog={runtime.logger.entries}
+              gameStateSource={gameStateSource}
+            />
+          )}
 
           <div className="hud" aria-hidden="true">
             <div className="hud-group">

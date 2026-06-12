@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { createEmptyGameState } from "@/agent/state";
+import { createNewGameState } from "@/engine";
 
-describe("createEmptyGameState", () => {
+describe("createNewGameState", () => {
   it("returns the default starting state", () => {
-    const state = createEmptyGameState();
+    const state = createNewGameState();
 
     expect(state).toEqual({
       season: "spring",
@@ -14,19 +14,37 @@ describe("createEmptyGameState", () => {
       },
       character: {
         gold: 25,
-        reputation: 0,
+        reputation: 60,
       },
       moogpt: {
-        trust: 50,
-        personality: "helpful",
+        trust: 90,
+        personality: "sassy",
         specializations: [],
       },
       farm: {
-        animals: [],
+        animals: [
+          expect.objectContaining({
+            id: "cow-1",
+            type: "cow",
+            health: 80,
+            productivity: 1,
+            age: 1,
+            mood: 80,
+          }),
+        ],
+        limits: {
+          cow: 3,
+        },
+        items: [
+          {
+            type: "hay",
+            quantity: 3,
+          },
+        ],
       },
       market: {
-        milk: 0,
-        hay: 0,
+        milk: 2,
+        hay: 2,
       },
       journalEntries: [],
       decisions: [],

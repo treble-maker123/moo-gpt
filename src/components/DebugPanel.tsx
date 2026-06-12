@@ -1,6 +1,5 @@
 import { useState } from "react";
-import type { GameState } from "@/agent/state/gameState";
-import type { EphemeralState } from "@/agent/state/ephemeralState";
+import type { GameState, EphemeralState } from "@/engine";
 import type { LlmCallRecord } from "@/agent/llm/llmCallLog";
 
 const TABS = ["Graph State", "LLM Calls"] as const;

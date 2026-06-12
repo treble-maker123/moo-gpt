@@ -3,10 +3,8 @@ import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
 import { isMooMode } from "@/agent/llm";
-import type { LogLlmCall } from "@/agent/llm/llmCallLog";
-import type { PlayerIntent } from "@/agent/state/ephemeralState";
-import type { AnimalType, ProductType } from "@/agent/state/types";
-import { VALID_ACTION_TYPES, buildActionList } from "@/agent/state/types";
+import type { PlayerIntent, AnimalType, ProductType } from "@/engine";
+import { VALID_ACTION_TYPES, buildActionList } from "@/engine";
 
 function buildPrompt(state: GraphState): string {
   const { farm, market } = state.gameState;
@@ -77,7 +75,17 @@ export async function parseIntent(
     throw new Error(
       "No LLM in configurable — pass { configurable: { llm } } when invoking the graph.",
     );
-  const logLlmCall = config?.configurable?.logLlmCall as LogLlmCall | undefined;
+  const logger = config?.configurable?.logger as
+    | {
+        append: (record: {
+          id: string;
+          node: string;
+          timestamp: number;
+          messages: Array<{ role: string; content: string }>;
+          response: string;
+        }) => void;
+      }
+    | undefined;
 
   const lastHuman = [...state.messages]
     .reverse()
@@ -106,7 +114,7 @@ export async function parseIntent(
   const responseText =
     typeof response.content === "string" ? response.content : "";
 
-  logLlmCall?.({
+  logger?.append({
     id: crypto.randomUUID(),
     node: "parseIntent",
     timestamp: Date.now(),
