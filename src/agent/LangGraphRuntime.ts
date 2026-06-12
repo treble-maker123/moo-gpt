@@ -9,8 +9,8 @@ import type {
   RuntimeConfig,
   RuntimeLogger,
 } from "@/agent/runtime";
-import { createEmptyEphemeralState } from "@/engine";
-import type { EphemeralState, GameState } from "@/engine";
+import { createEmptyEphemeralState } from "@/engine/types";
+import type { EphemeralState, GameState } from "@/engine/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -6,7 +6,7 @@ import {
 } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
-import { PERSONALITY_TRAITS } from "@/engine";
+import { PERSONALITY_TRAITS } from "@/engine/types";
 
 function buildBriefingPrompt(state: GraphState): string {
   const { gameState } = state;

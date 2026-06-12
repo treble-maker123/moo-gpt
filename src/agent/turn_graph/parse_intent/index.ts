@@ -3,8 +3,8 @@ import { SystemMessage, HumanMessage } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
 import { isMooMode } from "@/agent/llm";
-import type { PlayerIntent, AnimalType, ProductType } from "@/engine";
-import { VALID_ACTION_TYPES, buildActionList } from "@/engine";
+import type { PlayerIntent, AnimalType, ProductType } from "@/engine/types";
+import { VALID_ACTION_TYPES, buildActionList } from "@/engine/types";
 
 function buildPrompt(state: GraphState): string {
   const { farm, market } = state.gameState;

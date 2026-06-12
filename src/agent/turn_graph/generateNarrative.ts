@@ -6,7 +6,7 @@ import {
 } from "@langchain/core/messages";
 import type { GraphState, GraphUpdate } from "@/agent/state";
 import type { AppLLM } from "@/agent/llm";
-import { PERSONALITY_TRAITS } from "@/engine";
+import { PERSONALITY_TRAITS } from "@/engine/types";
 
 // LLM call — free prose, in-character. Handles four paths:
 //   1. query       — player asked a question; answer it from game state

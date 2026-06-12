@@ -2,7 +2,7 @@ import type { StateCreator } from "zustand";
 import { LangGraphRuntime } from "@/agent/LangGraphRuntime";
 import type { AgentEvent, RuntimeConfig } from "@/agent/runtime";
 import type { AgentSlice, GameStore } from "@/store/types";
-import { createEmptyEphemeralState, createEmptyGameState } from "@/engine";
+import { createEmptyEphemeralState, createEmptyGameState } from "@/engine/types";
 
 let runtimeSubscription: (() => void) | null = null;
 let nextThreadId = 1;

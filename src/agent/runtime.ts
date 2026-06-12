@@ -1,4 +1,4 @@
-import type { GameState, EphemeralState } from "@/engine";
+import type { GameState, EphemeralState } from "@/engine/types";
 import type { AppLLM } from "@/agent/llm";
 import type { LlmCallRecord } from "@/agent/llm/llmCallLog";
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createNewGameState } from "@/engine";
+import { createNewGameState } from "@/engine/types";
 
 describe("createNewGameState", () => {
   it("returns the default starting state", () => {

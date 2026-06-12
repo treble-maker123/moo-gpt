@@ -1,5 +1,5 @@
 import type { GraphState, GraphUpdate } from "@/agent/state";
-import type { Season } from "@/engine";
+import type { Season } from "@/engine/types";
 
 const SEASONS: Season[] = ["spring", "summer", "autumn", "winter"];
 

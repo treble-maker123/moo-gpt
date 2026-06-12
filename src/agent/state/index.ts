@@ -1,8 +1,8 @@
 import { Annotation, MessagesAnnotation } from "@langchain/langgraph";
-import { createNewEphemeralState, createNewGameState } from "@/engine";
-import type { EphemeralState, GameState } from "@/engine";
+import { createNewEphemeralState, createNewGameState } from "@/engine/types";
+import type { EphemeralState, GameState } from "@/engine/types";
 
-export type { EphemeralState, GameState } from "@/engine";
+export type { EphemeralState, GameState } from "@/engine/types";
 
 export const GraphAnnotation = Annotation.Root({
   ...MessagesAnnotation.spec,

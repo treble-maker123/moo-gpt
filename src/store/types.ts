@@ -1,6 +1,6 @@
 import type { AgentRuntime } from "@/agent/runtime";
 import type { AppLLM } from "@/agent/llm";
-import type { EphemeralState, GameState } from "@/engine";
+import type { EphemeralState, GameState } from "@/engine/types";
 
 export type GamePhase = "user_turn" | "world_turn" | "game_over";
 
