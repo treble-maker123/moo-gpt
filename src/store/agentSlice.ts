@@ -1,39 +1,82 @@
 import type { StateCreator } from "zustand";
 import { LangGraphRuntime } from "@/agent/LangGraphRuntime";
+import type { AgentEvent, RuntimeConfig } from "@/agent/runtime";
 import type { AgentSlice, GameStore } from "@/store/types";
 import { createEmptyEphemeralState, createEmptyGameState } from "@/engine";
+
+let runtimeSubscription: (() => void) | null = null;
+let nextThreadId = 1;
+
+function createRuntimeConfig(llm: RuntimeConfig["llm"]): RuntimeConfig {
+  return {
+    llm,
+    threadId: `thread-${nextThreadId++}`,
+  };
+}
+
+function applyRuntimeEvent(set: Parameters<StateCreator<GameStore>>[0], event: AgentEvent) {
+  switch (event.type) {
+    case "turn_started":
+      set((state) => ({
+        phase: "world_turn",
+        isLoading: true,
+        gameOver: false,
+        messages: state.messages.length === 0 ? [] : state.messages,
+      }));
+      return;
+    case "message":
+      set((state) => ({
+        messages: [...state.messages, { role: "assistant", text: event.content }],
+      }));
+      return;
+    case "state_update":
+      set({
+        gameState: event.gameState,
+        ephemeralState: event.ephemeralState,
+      });
+      return;
+    case "turn_ended":
+      set({
+        phase: event.gameOver ? "game_over" : "user_turn",
+        isLoading: false,
+        gameOver: event.gameOver,
+      });
+      return;
+    case "error":
+      set((state) => ({
+        messages: [...state.messages, { role: "assistant", text: "Moo. (Something went wrong.)" }],
+        phase: "user_turn",
+        isLoading: false,
+        gameOver: false,
+      }));
+      return;
+  }
+}
+
+function attachRuntime(runtime: LangGraphRuntime, set: Parameters<StateCreator<GameStore>>[0]) {
+  runtimeSubscription?.();
+  runtimeSubscription = runtime.subscribe((event) => applyRuntimeEvent(set, event));
+}
 
 export const createAgentSlice: StateCreator<GameStore, [], [], AgentSlice> = (set, get) => ({
   runtime: new LangGraphRuntime(),
   llm: null,
-  threadId: "",
 
-  setLlm(llm) {
-    const runtime = get().runtime;
-    runtime.configure({ llm });
-    set({ llm });
+  configure({ llm }) {
+    const runtime = new LangGraphRuntime();
+    runtime.configure(createRuntimeConfig(llm));
+    attachRuntime(runtime, set);
+    set({ runtime, llm, gameOver: false, phase: "user_turn", isLoading: false });
   },
 
-  async startUserTurn() {
-    const { runtime, gameState, llm } = get();
+  async startTurn() {
+    const { runtime, llm } = get();
     if (!llm) return;
 
-    set({ phase: "world_turn", isLoading: true, threadId: "" });
-
     try {
-      const result = await runtime.startTurn(gameState);
-      set({
-        threadId: runtime.threadId,
-        messages: result.messages,
-        gameState: result.gameState,
-        ephemeralState: result.ephemeralState,
-        phase: "user_turn",
-      });
+      await runtime.startTurn(get().gameState);
     } catch (error) {
-      console.error("[store] startUserTurn error:", error);
-      set({
-        messages: [{ role: "assistant", text: "Moo. (Something went wrong starting the turn.)" }],
-      });
+      console.error("[store] startTurn error:", error);
     } finally {
       set({ isLoading: false });
     }
@@ -49,13 +92,7 @@ export const createAgentSlice: StateCreator<GameStore, [], [], AgentSlice> = (se
     }));
 
     try {
-      const result = await runtime.sendMessage(text);
-      set({
-        messages: result.messages,
-        gameState: result.gameState,
-        ephemeralState: result.ephemeralState,
-        phase: result.gameOver ? "game_over" : "user_turn",
-      });
+      await runtime.sendMessage(text);
     } catch (error) {
       console.error("[store] sendMessage error:", error);
       set((state) => ({
@@ -67,9 +104,14 @@ export const createAgentSlice: StateCreator<GameStore, [], [], AgentSlice> = (se
   },
 
   resetGame() {
-    const runtime = new LangGraphRuntime();
     const { llm } = get();
-    if (llm) runtime.configure({ llm });
+    const runtime = new LangGraphRuntime();
+
+    if (llm) {
+      runtime.configure(createRuntimeConfig(llm));
+    }
+
+    attachRuntime(runtime, set);
     set({
       runtime,
       phase: "user_turn",
@@ -77,8 +119,8 @@ export const createAgentSlice: StateCreator<GameStore, [], [], AgentSlice> = (se
       gameState: createEmptyGameState(),
       ephemeralState: createEmptyEphemeralState(),
       gameStateSource: "new",
-      threadId: "",
       isLoading: false,
+      gameOver: false,
     });
   },
 });

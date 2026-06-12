@@ -19,14 +19,14 @@ export interface GameSlice {
 export interface UiSlice {
   phase: GamePhase;
   isLoading: boolean;
+  gameOver: boolean;
 }
 
 export interface AgentSlice {
   runtime: AgentRuntime;
   llm: AppLLM | null;
-  threadId: string;
-  setLlm: (llm: AppLLM) => void;
-  startUserTurn: () => Promise<void>;
+  configure: (config: { llm: AppLLM }) => void;
+  startTurn: () => Promise<void>;
   sendMessage: (text: string) => Promise<void>;
   resetGame: () => void;
 }

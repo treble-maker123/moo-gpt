@@ -2,21 +2,21 @@ import type { GameState, EphemeralState } from "@/engine";
 import type { AppLLM } from "@/agent/llm";
 import type { LlmCallRecord } from "@/agent/llm/llmCallLog";
 
-export interface AgentMessage {
-  role: "user" | "assistant";
-  text: string;
-}
-
 export interface RuntimeConfig {
   llm: AppLLM;
+  threadId: string;
 }
 
-export interface RuntimeResult {
-  messages: AgentMessage[];
-  gameState: GameState;
-  ephemeralState: EphemeralState;
-  gameOver: boolean;
-}
+export type AgentEvent =
+  | { type: "turn_started" }
+  | { type: "message"; role: "assistant"; content: string }
+  | {
+      type: "state_update";
+      gameState: GameState;
+      ephemeralState: EphemeralState;
+    }
+  | { type: "turn_ended"; gameOver: boolean }
+  | { type: "error"; message: string };
 
 export interface RuntimeLogger {
   readonly entries: LlmCallRecord[];
@@ -27,8 +27,13 @@ export interface RuntimeLogger {
 
 export interface AgentRuntime {
   configure(config: RuntimeConfig): void;
-  startTurn(state: GameState): Promise<RuntimeResult>;
-  sendMessage(text: string): Promise<RuntimeResult>;
+  startTurn(state: GameState): Promise<void>;
+  sendMessage(text: string): Promise<void>;
+  subscribe(listener: (event: AgentEvent) => void): () => void;
   readonly logger: RuntimeLogger;
-  readonly threadId: string;
+}
+
+export interface InternalRuntimeSnapshot {
+  gameState: GameState;
+  ephemeralState: EphemeralState;
 }

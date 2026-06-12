@@ -3,7 +3,12 @@ import { graph } from "@/agent/turn_graph";
 import { isMooMode } from "@/agent/llm";
 import type { AppLLM } from "@/agent/llm";
 import type { LlmCallRecord } from "@/agent/llm/llmCallLog";
-import type { AgentMessage, AgentRuntime, RuntimeConfig, RuntimeLogger, RuntimeResult } from "@/agent/runtime";
+import type {
+  AgentEvent,
+  AgentRuntime,
+  RuntimeConfig,
+  RuntimeLogger,
+} from "@/agent/runtime";
 import { createEmptyEphemeralState } from "@/engine";
 import type { EphemeralState, GameState } from "@/engine";
 
@@ -33,91 +38,144 @@ class InMemoryRuntimeLogger implements RuntimeLogger {
   }
 }
 
-function toDisplayMessages(rawMessages: unknown[]): AgentMessage[] {
+function toMessages(rawMessages: unknown[]): Array<{ role: "user" | "assistant"; text: string }> {
   return (rawMessages as any[]) // eslint-disable-line @typescript-eslint/no-explicit-any
     .filter((m) => m._getType() === "ai" || m._getType() === "human")
     .map((m) => ({
-      role: (m._getType() === "ai" ? "assistant" : "user") as AgentMessage["role"],
+      role: (m._getType() === "ai" ? "assistant" : "user") as "user" | "assistant",
       text: typeof m.content === "string" ? m.content : "",
     }));
+}
+
+function latestAssistantText(rawMessages: unknown[]): string | null {
+  const messages = toMessages(rawMessages);
+  const assistant = [...messages].reverse().find((m) => m.role === "assistant");
+  return assistant?.text ?? null;
 }
 
 export class LangGraphRuntime implements AgentRuntime {
   readonly logger = new InMemoryRuntimeLogger();
   #llm: AppLLM | null = null;
   #threadId = "";
-
-  get threadId(): string {
-    return this.#threadId;
-  }
+  #listeners = new Set<(event: AgentEvent) => void>();
 
   configure(config: RuntimeConfig): void {
     this.#llm = config.llm;
+    this.#threadId = config.threadId;
+    this.logger.clear();
   }
 
-  async startTurn(state: GameState): Promise<RuntimeResult> {
-    if (!this.#llm) {
-      throw new Error("Runtime is not configured.");
+  subscribe(listener: (event: AgentEvent) => void): () => void {
+    this.#listeners.add(listener);
+    return () => this.#listeners.delete(listener);
+  }
+
+  #emit(event: AgentEvent): void {
+    this.#listeners.forEach((listener) => listener(event));
+  }
+
+  async startTurn(state: GameState): Promise<void> {
+    if (!this.#llm || !this.#threadId) {
+      const message = "Runtime is not configured.";
+      this.#emit({ type: "error", message });
+      throw new Error(message);
     }
 
     this.logger.clear();
-    this.#threadId = crypto.randomUUID();
+    this.#emit({ type: "turn_started" });
 
-    const result = await graph.invoke(
-      { gameState: state },
-      {
+    try {
+      const result = await graph.invoke(
+        { gameState: state },
+        {
+          configurable: {
+            thread_id: this.#threadId,
+            llm: this.#llm,
+            logger: this.logger,
+          },
+        },
+      );
+
+      if (isMooMode(this.#llm)) {
+        await sleep(800 + Math.random() * 700);
+      }
+
+      const assistantText = latestAssistantText(result.messages ?? []);
+      if (assistantText) {
+        this.#emit({
+          type: "message",
+          role: "assistant",
+          content: assistantText,
+        });
+      }
+
+      this.#emit({
+        type: "state_update",
+        gameState: (result.gameState ?? state) as GameState,
+        ephemeralState: (result.ephemeralState ?? createEmptyEphemeralState()) as EphemeralState,
+      });
+
+      this.#emit({ type: "turn_ended", gameOver: false });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown runtime error";
+      this.#emit({ type: "error", message });
+      throw error;
+    }
+  }
+
+  async sendMessage(text: string): Promise<void> {
+    if (!this.#llm || !this.#threadId) {
+      const message = "Runtime is not configured.";
+      this.#emit({ type: "error", message });
+      throw new Error(message);
+    }
+
+    if (!text.trim()) {
+      return;
+    }
+
+    try {
+      this.#emit({ type: "turn_started" });
+
+      const config = {
         configurable: {
           thread_id: this.#threadId,
           llm: this.#llm,
           logger: this.logger,
         },
-      },
-    );
+      };
 
-    if (isMooMode(this.#llm)) {
-      await sleep(800 + Math.random() * 700);
+      await graph.updateState(config, { messages: [new HumanMessage(text)] });
+      const result = await graph.invoke(null, config);
+
+      if (isMooMode(this.#llm)) {
+        await sleep(800 + Math.random() * 700);
+      }
+
+      const assistantText = latestAssistantText(result.messages ?? []);
+      if (assistantText) {
+        this.#emit({
+          type: "message",
+          role: "assistant",
+          content: assistantText,
+        });
+      }
+
+      const nextState = (result.gameState ?? null) as GameState | null;
+      if (nextState) {
+        this.#emit({
+          type: "state_update",
+          gameState: nextState,
+          ephemeralState: (result.ephemeralState ?? createEmptyEphemeralState()) as EphemeralState,
+        });
+      }
+
+      const graphState = await graph.getState(config);
+      this.#emit({ type: "turn_ended", gameOver: graphState.next.length === 0 });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown runtime error";
+      this.#emit({ type: "error", message });
+      throw error;
     }
-
-    return {
-      messages: toDisplayMessages(result.messages ?? []),
-      gameState: (result.gameState ?? state) as GameState,
-      ephemeralState: (result.ephemeralState ?? createEmptyEphemeralState()) as EphemeralState,
-      gameOver: false,
-    };
-  }
-
-  async sendMessage(text: string): Promise<RuntimeResult> {
-    if (!this.#llm) {
-      throw new Error("Runtime is not configured.");
-    }
-
-    if (!text.trim()) {
-      throw new Error("Empty message");
-    }
-
-    const config = {
-      configurable: {
-        thread_id: this.#threadId,
-        llm: this.#llm,
-        logger: this.logger,
-      },
-    };
-
-    await graph.updateState(config, { messages: [new HumanMessage(text)] });
-    const result = await graph.invoke(null, config);
-
-    if (isMooMode(this.#llm)) {
-      await sleep(800 + Math.random() * 700);
-    }
-
-    const graphState = await graph.getState(config);
-    const gameOver = graphState.next.length === 0;
-
-    return {
-      messages: toDisplayMessages(result.messages ?? []),
-      gameState: result.gameState as GameState,
-      ephemeralState: (result.ephemeralState ?? createEmptyEphemeralState()) as EphemeralState,
-      gameOver,
-    };
   }
 }
